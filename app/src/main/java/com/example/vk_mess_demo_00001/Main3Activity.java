@@ -45,6 +45,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class Main3Activity extends AppCompatActivity {
 
@@ -339,9 +340,7 @@ public class Main3Activity extends AppCompatActivity {
                 String str="";
                 for (int i = 0; i < mess.getAttachments().size(); i++) {
                     if (mess.getAttachments().get(i).getType().equals("photo")) {
-                        //str+= "'"+mess.getAttachments().get(i).getType()+"'"+ "\n";
                         if (setting.getBoolean("photochatOn",true)) {
-                            //ImageView image = (ImageView) convertView.findViewById(getR_id_view(i));
                             String photo = "";
                             String photomess = "";
                             if (mess.getAttachments().get(i).getPhoto().getPhoto_1280()!=null) {
@@ -365,7 +364,6 @@ public class Main3Activity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            //LinearLayout line = (LinearLayout) convertView.findViewById(R.id.line);
                             LayoutInflater inflater = getLayoutInflater();
                             View cont = inflater.inflate(R.layout.attachment_conteiner_dinamic,null);
                             ImageView photochka = (ImageView) cont.findViewById(R.id.imageView);
@@ -380,7 +378,6 @@ public class Main3Activity extends AppCompatActivity {
                                     .centerCrop()
                                     .into(photochka);
                             line.addView(cont);
-                            //photo=mess.getAttachments().get(i).getPhoto().getPhoto_1280();
                             photochka.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -390,13 +387,6 @@ public class Main3Activity extends AppCompatActivity {
                                 }
                             });
                         }
-//                        LinearLayout liner=  (LinearLayout) findViewById(R.id.line);
-//                        View included = LayoutInflater.from(context).inflate(R.layout.photo, null, false);
-//                        Picasso.with(context)
-//                                .load(mess.getAttachments().get(i).getPhoto().getPhoto_604())
-//                                .into(((ImageView) included.findViewById(R.id.ivInternal)));
-//
-//                        liner.addView(included);
                     }
                     if (mess.getAttachments().get(i).getType().equals("sticker")){
                         LayoutInflater inflater = getLayoutInflater();
@@ -417,8 +407,6 @@ public class Main3Activity extends AppCompatActivity {
                         str += mess.getAttachments().get(i).getLink().getUrl();
                     }
                     if (mess.getAttachments().get(i).getType().equals("video")) {
-                        //str+= "'Video title: "+mess.getAttachments().get(i).getVideo().getTitle()+"'"+ "\n";
-                        //LinearLayout line = (LinearLayout) convertView.findViewById(R.id.line);
                         LayoutInflater inflater = getLayoutInflater();
                         View cont = inflater.inflate(R.layout.attachment_conteiner_dinamic,null);
                         ImageView photochka = (ImageView) cont.findViewById(R.id.imageView);
@@ -432,7 +420,6 @@ public class Main3Activity extends AppCompatActivity {
                                 .centerCrop()
                                 .into(photochka);
                         line.addView(cont);
-                        //ImageView image = (ImageView) convertView.findViewById(getR_id_view(i));
                         final String video = mess.getAttachments().get(i).getVideo().getOwner_id()+"_"+mess.getAttachments().get(i).getVideo().getId()+"_"+mess.getAttachments().get(i).getVideo().getAccess_key();
                         photochka.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -474,8 +461,6 @@ public class Main3Activity extends AppCompatActivity {
                         });
                     }
                     if (mess.getAttachments().get(i).getType().equals("doc")) {
-                        //str+= "'"+mess.getAttachments().get(i).getDoc().getTitle()+"'"+ "\n";
-                        //LinearLayout line = (LinearLayout) convertView.findViewById(R.id.line);
                         LayoutInflater inflater = getLayoutInflater();
                         View cont = inflater.inflate(R.layout.attachment_conteiner_dinamic,null);
                         ImageView photochka = (ImageView) cont.findViewById(R.id.imageView);
@@ -495,7 +480,6 @@ public class Main3Activity extends AppCompatActivity {
                                     .into(photochka);
                         }
                         line.addView(cont);
-                        //ImageView image = (ImageView) convertView.findViewById(getR_id_view(i));
                         final Attachment att = mess.getAttachments().get(i);
                         photochka.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -553,6 +537,4 @@ public class Main3Activity extends AppCompatActivity {
             return convertView;
         }
     }
-
-
 }

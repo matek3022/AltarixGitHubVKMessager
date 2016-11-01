@@ -39,4 +39,6 @@ dependencies {
     compile 'com.github.armcha:AutoLinkTextView:0.2.0'
 
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.2'
+
+    compile 'com.github.chrisbanes:PhotoView:1.3.1'
 }
