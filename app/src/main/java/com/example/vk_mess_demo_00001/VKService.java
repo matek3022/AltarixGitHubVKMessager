@@ -1,0 +1,45 @@
+package com.example.vk_mess_demo_00001;
+
+import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
+
+/**
+ * Created by Каракатица on 07.10.2016.
+ */
+
+public interface VKService {
+
+    @GET("users.get?v=5.57")
+    Call<ServerResponse<ArrayList<User>>> getUser(@Query("access_token") String access_token,
+                                                  @Query("user_ids") String user_ids,
+                                                  @Query("fields") String fields);
+    @GET("messages.getDialogs?v=5.57&preview_length=50")
+    Call<ServerResponse<ItemMess<ArrayList<item>>>> getDialogs (@Query("access_token") String access_token,
+                                                                         @Query("count") int count,
+                                                                         @Query("offset") int offset);
+
+    @GET("messages.getHistory?v=5.57")
+    Call<ServerResponse<ItemMess<ArrayList<Dialogs>>>> getHistory(@Query("access_token") String access_token,
+                                                                  @Query("count") int count,
+                                                                  @Query("offset") int offset,
+                                                                  @Query("user_id") int user_id);
+    @GET("messages.send?v=5.57")
+    Call<ServerResponse> sendMessage(@Query("access_token") String access_token,
+                                     @Query("user_id") int user_id,
+                                     @Query("message") String message,
+                                     @Query("chat_id") int chat_id,
+                                     @Query("peer_id") int peer_id);
+    @GET("messages.getChatUsers?v=5.59")
+    Call<ServerResponse<ArrayList<namesChat>>> getChatUsers(@Query("access_token") String access_token,
+                                                            @Query("chat_id") int chat_id,
+                                                            @Query("fields") String fields);
+    @GET("account.setOnline?v=5.59")
+    Call<ServerResponse> setOnline (@Query("access_token") String access_token);
+
+    @GET("video.get?v=5.59&offset=0")
+    Call<ServerResponse<ItemMess<ArrayList<video_iformation>>>> getVideos (@Query("access_token") String access_token,
+                                                                           @Query("videos") String videos);
+}
