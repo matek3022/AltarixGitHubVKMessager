@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -42,14 +43,20 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Main2Activity extends AppCompatActivity {
     public static String TOKEN = "cf561f6c64e197e63cff33065cdf789bd8dd6159087fceac7df5178ead82eb23d893913e42679f502f665";
+    public static MediaPlayer mediaPlayer;
     SwipeRefreshLayout refreshLayout;
     Adapter adapter;
     String stroka = "";
     int off = 0;
     ArrayList<namesChat> names;
     boolean chek;
+    Retrofit retrofit;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.vk.com/method/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         setTitle(getString(R.string.dialogs));
@@ -127,10 +134,10 @@ public class Main2Activity extends AppCompatActivity {
         final Context con = this;
         stroka = "";
         chek = true;
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.vk.com/method/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("https://api.vk.com/method/")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
 
         VKService service = retrofit.create(VKService.class);
         Call<ServerResponse<ItemMess<ArrayList<item>>>> call = service.getDialogs(TOKEN, 20, offset);
@@ -150,10 +157,10 @@ public class Main2Activity extends AppCompatActivity {
                     }
                 }
                 adapter.items.add(new item());
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl("https://api.vk.com/method/")
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
+//                Retrofit retrofit = new Retrofit.Builder()
+//                        .baseUrl("https://api.vk.com/method/")
+//                        .addConverterFactory(GsonConverterFactory.create())
+//                        .build();
 
                 VKService service = retrofit.create(VKService.class);
                 Call<ServerResponse<ArrayList<User>>> call1 = service.getUser("cf561f6c64e197e63cff33065cdf789bd8dd6159087fceac7df5178ead82eb23d893913e42679f502f665",

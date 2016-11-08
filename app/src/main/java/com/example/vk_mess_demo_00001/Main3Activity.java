@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -35,6 +37,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,6 +48,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class Main3Activity extends AppCompatActivity {
 
@@ -57,8 +61,14 @@ public class Main3Activity extends AppCompatActivity {
     ListView listView;
     SwipyRefreshLayout refreshLayout;
     int off;
+    Retrofit retrofit;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.vk.com/method/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
         user_id = getIntent().getIntExtra("userID", 0);
@@ -78,7 +88,6 @@ public class Main3Activity extends AppCompatActivity {
                         off-=20;
                     }
                     refresh(off);
-                    //listView.setSelection(listView.getCount()-1);
                 } else {
                     off+=20;
                     refresh(off);
@@ -92,8 +101,6 @@ public class Main3Activity extends AppCompatActivity {
             public void onClick(View v) {
                 refreshLayout.setRefreshing(true);
                 final EditText mess = (EditText) findViewById(R.id.editText);
-
-                //Log.wtf("motya","messge =["+mess.getText()+"]endl");
                 if (!mess.getText().toString().equals("")) {
                     String message=mess.getText().toString();
                     mess.setText("");
@@ -151,11 +158,6 @@ public class Main3Activity extends AppCompatActivity {
         refreshLayout.setRefreshing(true);
         adapter = new Adapter(this);
         names = new ArrayList<namesChat>();
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.vk.com/method/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
         VKService service = retrofit.create(VKService.class);
 
         Call<ServerResponse<ItemMess<ArrayList<Dialogs>>>> call = service.getHistory(Main2Activity.TOKEN, 20, off, user_id);
@@ -173,13 +175,8 @@ public class Main3Activity extends AppCompatActivity {
                 if (chat_id==0) {
                     adapter.notifyDataSetChanged();
                 }
-                //listView.setSelection(l.size()-1);
                 refreshLayout.setRefreshing(false);
                 if (chat_id!=0){
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("https://api.vk.com/method/")
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .build();
 
                     VKService service = retrofit.create(VKService.class);
 
@@ -238,7 +235,6 @@ public class Main3Activity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.titleee:
-                //Toast.makeText(this, "sdjklhnfuise", Toast.LENGTH_SHORT).show();
                 refresh(0);
                 return true;
         }
@@ -251,11 +247,8 @@ public class Main3Activity extends AppCompatActivity {
         public Adapter(Context con) {
             items = new ArrayList<>();
             context = con;
+
         }
-//        public int getR_id_view (int ind){
-//            int arr [] = {R.id.imageView1,R.id.imageView2,R.id.imageView3,R.id.imageView4,R.id.imageView5,R.id.imageView6,R.id.imageView7,R.id.imageView8,R.id.imageView9,R.id.imageView10};
-//            return arr[ind];
-//        }
         @Override
         public int getCount() {
             return items.size();
@@ -339,9 +332,7 @@ public class Main3Activity extends AppCompatActivity {
                 String str="";
                 for (int i = 0; i < mess.getAttachments().size(); i++) {
                     if (mess.getAttachments().get(i).getType().equals("photo")) {
-                        //str+= "'"+mess.getAttachments().get(i).getType()+"'"+ "\n";
                         if (setting.getBoolean("photochatOn",true)) {
-                            //ImageView image = (ImageView) convertView.findViewById(getR_id_view(i));
                             String photo = "";
                             String photomess = "";
                             if (mess.getAttachments().get(i).getPhoto().getPhoto_1280()!=null) {
@@ -365,7 +356,6 @@ public class Main3Activity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            //LinearLayout line = (LinearLayout) convertView.findViewById(R.id.line);
                             LayoutInflater inflater = getLayoutInflater();
                             View cont = inflater.inflate(R.layout.attachment_conteiner_dinamic,null);
                             ImageView photochka = (ImageView) cont.findViewById(R.id.imageView);
@@ -380,7 +370,6 @@ public class Main3Activity extends AppCompatActivity {
                                     .centerCrop()
                                     .into(photochka);
                             line.addView(cont);
-                            //photo=mess.getAttachments().get(i).getPhoto().getPhoto_1280();
                             photochka.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -390,13 +379,6 @@ public class Main3Activity extends AppCompatActivity {
                                 }
                             });
                         }
-//                        LinearLayout liner=  (LinearLayout) findViewById(R.id.line);
-//                        View included = LayoutInflater.from(context).inflate(R.layout.photo, null, false);
-//                        Picasso.with(context)
-//                                .load(mess.getAttachments().get(i).getPhoto().getPhoto_604())
-//                                .into(((ImageView) included.findViewById(R.id.ivInternal)));
-//
-//                        liner.addView(included);
                     }
                     if (mess.getAttachments().get(i).getType().equals("sticker")){
                         LayoutInflater inflater = getLayoutInflater();
@@ -417,8 +399,6 @@ public class Main3Activity extends AppCompatActivity {
                         str += mess.getAttachments().get(i).getLink().getUrl();
                     }
                     if (mess.getAttachments().get(i).getType().equals("video")) {
-                        //str+= "'Video title: "+mess.getAttachments().get(i).getVideo().getTitle()+"'"+ "\n";
-                        //LinearLayout line = (LinearLayout) convertView.findViewById(R.id.line);
                         LayoutInflater inflater = getLayoutInflater();
                         View cont = inflater.inflate(R.layout.attachment_conteiner_dinamic,null);
                         ImageView photochka = (ImageView) cont.findViewById(R.id.imageView);
@@ -432,16 +412,10 @@ public class Main3Activity extends AppCompatActivity {
                                 .centerCrop()
                                 .into(photochka);
                         line.addView(cont);
-                        //ImageView image = (ImageView) convertView.findViewById(getR_id_view(i));
                         final String video = mess.getAttachments().get(i).getVideo().getOwner_id()+"_"+mess.getAttachments().get(i).getVideo().getId()+"_"+mess.getAttachments().get(i).getVideo().getAccess_key();
                         photochka.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Retrofit retrofit = new Retrofit.Builder()
-                                        .baseUrl("https://api.vk.com/method/")
-                                        .addConverterFactory(GsonConverterFactory.create())
-                                        .build();
-
                                 VKService service = retrofit.create(VKService.class);
                                 Toast toast = Toast.makeText(getApplicationContext(),
                                         "Loading...", Toast.LENGTH_LONG);
@@ -474,8 +448,6 @@ public class Main3Activity extends AppCompatActivity {
                         });
                     }
                     if (mess.getAttachments().get(i).getType().equals("doc")) {
-                        //str+= "'"+mess.getAttachments().get(i).getDoc().getTitle()+"'"+ "\n";
-                        //LinearLayout line = (LinearLayout) convertView.findViewById(R.id.line);
                         LayoutInflater inflater = getLayoutInflater();
                         View cont = inflater.inflate(R.layout.attachment_conteiner_dinamic,null);
                         ImageView photochka = (ImageView) cont.findViewById(R.id.imageView);
@@ -495,7 +467,6 @@ public class Main3Activity extends AppCompatActivity {
                                     .into(photochka);
                         }
                         line.addView(cont);
-                        //ImageView image = (ImageView) convertView.findViewById(getR_id_view(i));
                         final Attachment att = mess.getAttachments().get(i);
                         photochka.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -508,7 +479,87 @@ public class Main3Activity extends AppCompatActivity {
                         });
                     }
                     if (mess.getAttachments().get(i).getType().equals("audio")) {
-                        str+="'"+mess.getAttachments().get(i).getType()+"'"+ "\n";
+                        LayoutInflater inflater = getLayoutInflater();
+                        View cont = inflater.inflate(R.layout.attachment_conteiner_audio_dinamic,null);
+                        TextView text = (TextView) cont.findViewById(R.id.textView);
+                        Log.wtf("audio",mess.getAttachments().get(i).getAudio().getUrl());
+                        text.setText(mess.getAttachments().get(i).getAudio().getArtist()+" - "+mess.getAttachments().get(i).getAudio().getTitle());
+                        Button button = (Button) cont.findViewById(R.id.button);
+                        Button button1 = (Button) cont.findViewById(R.id.button1);
+                        Button button2 = (Button) cont.findViewById(R.id.button2);
+                        Button button3 = (Button) cont.findViewById(R.id.button3);
+                        Button button4 = (Button) cont.findViewById(R.id.button4);
+                        line.addView(cont);
+                        Log.wtf("audio",mess.getAttachments().get(i).getAudio().getUrl());
+                        final String url = mess.getAttachments().get(i).getAudio().getUrl();
+                        button.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (Main2Activity.mediaPlayer != null) {
+                                    Main2Activity.mediaPlayer.seekTo(Main2Activity.mediaPlayer.getCurrentPosition() - 5000);
+                                }
+                            }
+                        });
+                        button1.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (Main2Activity.mediaPlayer != null) {
+                                    Log.wtf("audio","stop seek= "+Main2Activity.mediaPlayer.getCurrentPosition());
+                                    if (Main2Activity.mediaPlayer.getCurrentPosition()==0) {
+                                        try {
+                                            Main2Activity.mediaPlayer.release();
+                                            Main2Activity.mediaPlayer = null;
+                                            Main2Activity.mediaPlayer = new MediaPlayer();
+                                            Main2Activity.mediaPlayer.setDataSource(url);
+                                            Log.wtf("audio","url start= "+url);
+                                            Main2Activity.mediaPlayer.prepare();
+                                            Main2Activity.mediaPlayer.start();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }else {
+                                        Main2Activity.mediaPlayer.start();
+                                    }
+                                }else{
+                                    try {
+                                        Main2Activity.mediaPlayer = new MediaPlayer();
+                                        Main2Activity.mediaPlayer.setDataSource(url);
+                                        Log.wtf("audio","url start= "+url);
+                                        Main2Activity.mediaPlayer.prepare();
+                                        Main2Activity.mediaPlayer.start();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                            }
+                        });
+                        button2.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (Main2Activity.mediaPlayer != null) {
+                                    Main2Activity.mediaPlayer.pause();
+                                }
+                            }
+                        });
+                        button3.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (Main2Activity.mediaPlayer != null) {
+                                    Main2Activity.mediaPlayer.seekTo(Main2Activity.mediaPlayer.getCurrentPosition() + 5000);
+                                }
+                            }
+                        });
+                        button4.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (Main2Activity.mediaPlayer != null) {
+                                    Main2Activity.mediaPlayer.pause();
+                                    Main2Activity.mediaPlayer.seekTo(0);
+                                    Log.wtf("audio","stop seek= "+Main2Activity.mediaPlayer.getCurrentPosition());
+                                }
+                            }
+                        });
                     }
                     if (mess.getAttachments().get(i).getType().equals("wall")) {
                         str+="'"+mess.getAttachments().get(i).getType()+"'"+ "\n";
@@ -517,7 +568,7 @@ public class Main3Activity extends AppCompatActivity {
                 if (mess.getFwd_messages().size() == 0) {
                     tvBody.setAutoLinkText(mess.getBody()+ str );
                 } else {
-                    tvBody.setAutoLinkText(mess.getBody()+ str + " 'Пересланые сообщения'");
+                    tvBody.setAutoLinkText(mess.getBody()+ str + " 'Пересланые сообщения'");//пересланые сообщения
                 }
             }
             if (mess.getRead_state() == 0) {
@@ -553,6 +604,4 @@ public class Main3Activity extends AppCompatActivity {
             return convertView;
         }
     }
-
-
 }

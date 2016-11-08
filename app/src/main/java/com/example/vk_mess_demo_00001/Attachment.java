@@ -12,6 +12,7 @@ public class Attachment {
     private video_mess video;
     private link link;
     private doc_mess doc;
+    private audio_mess audio;
     public String getType() {
         return type;
     }
@@ -33,5 +34,9 @@ public class Attachment {
 
     public doc_mess getDoc() {
         return doc;
+    }
+
+    public audio_mess getAudio() {
+        return audio;
     }
 }

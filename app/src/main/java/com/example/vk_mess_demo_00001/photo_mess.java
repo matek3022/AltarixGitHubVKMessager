@@ -12,6 +12,7 @@ public class photo_mess {
     private String photo_604;
     private String photo_807;
     private String photo_1280;
+    private String photo_2560;
     private int width;
     private int height;
     private String text;
@@ -60,6 +61,10 @@ public class photo_mess {
 
     public String getPhoto_1280() {
         return photo_1280;
+    }
+
+    public String getPhoto_2560() {
+        return photo_2560;
     }
 
     public String getText() {
