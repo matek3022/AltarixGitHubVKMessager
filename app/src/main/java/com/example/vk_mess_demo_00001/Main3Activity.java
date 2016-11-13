@@ -141,7 +141,7 @@ public class Main3Activity extends AppCompatActivity {
                 }else {
                     refreshLayout.setRefreshing(false);
                     Toast toast = Toast.makeText(getApplicationContext(),
-                            "Void message", Toast.LENGTH_SHORT);
+                            "Void messageыыыыы", Toast.LENGTH_SHORT);
                     //toast.setGravity(Gravity.CENTER, 0, 0);
 
                     toast.show();
@@ -235,7 +235,8 @@ public class Main3Activity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.titleee:
-                refresh(0);
+                off=0;
+                refresh(off);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -243,9 +244,11 @@ public class Main3Activity extends AppCompatActivity {
     public class  Adapter extends BaseAdapter {
 
         ArrayList<Dialogs> items;//класс список
+        ArrayList<Dialogs> fwd_mess;
         Context context;
         public Adapter(Context con) {
             items = new ArrayList<>();
+            fwd_mess = new ArrayList<>();
             context = con;
 
         }
@@ -326,7 +329,23 @@ public class Main3Activity extends AppCompatActivity {
                 if (mess.getFwd_messages().size() == 0) {
                     tvBody.setAutoLinkText(mess.getBody());
                 } else {
-                    tvBody.setAutoLinkText(mess.getBody() + " 'Пересланые сообщения'");
+                    tvBody.setAutoLinkText(mess.getBody());
+
+                    LayoutInflater inflater = getLayoutInflater();
+                    View cont = inflater.inflate(R.layout.attachment_conteiner_dinamic,null);
+                    //ImageView photochka = (ImageView) cont.findViewById(R.id.imageView);
+                    TextView text = (TextView) cont.findViewById(R.id.textView3);
+                    text.setTextColor(Color.BLUE);
+                    text.setText("ыы");
+                    text.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            for (int i = 0; i<mess.getFwd_messages().size();i++)
+                                fwd_mess.add(mess.getFwd_messages().get(i));
+                            items=fwd_mess;
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
                 }
             } else {
                 String str="";
@@ -568,7 +587,23 @@ public class Main3Activity extends AppCompatActivity {
                 if (mess.getFwd_messages().size() == 0) {
                     tvBody.setAutoLinkText(mess.getBody()+ str );
                 } else {
-                    tvBody.setAutoLinkText(mess.getBody()+ str + " 'Пересланые сообщения'");//пересланые сообщения
+                    tvBody.setAutoLinkText(mess.getBody()+ str);
+
+                    LayoutInflater inflater = getLayoutInflater();
+                    View cont = inflater.inflate(R.layout.attachment_conteiner_dinamic,null);
+                    //ImageView photochka = (ImageView) cont.findViewById(R.id.imageView);
+                    TextView text = (TextView) cont.findViewById(R.id.textView3);
+                    text.setTextColor(Color.BLUE);
+                    text.setText("ыы");
+                    text.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            for (int i = 0; i<mess.getFwd_messages().size();i++)
+                                fwd_mess.add(mess.getFwd_messages().get(i));
+                            items=fwd_mess;
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
                 }
             }
             if (mess.getRead_state() == 0) {

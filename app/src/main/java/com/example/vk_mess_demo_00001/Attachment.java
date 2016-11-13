@@ -1,9 +1,5 @@
 package com.example.vk_mess_demo_00001;
 
-/**
- * Created by Каракатица on 16.10.2016.
- */
-
 public class Attachment {
 
     private String type;
