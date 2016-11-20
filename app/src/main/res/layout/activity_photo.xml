@@ -5,7 +5,7 @@
     android:id="@+id/activity_photo"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.vk_mess_demo_00001.PhotoActivity">
+    tools:context="com.example.vk_mess_demo_00001.Activitys.PhotoActivity">
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

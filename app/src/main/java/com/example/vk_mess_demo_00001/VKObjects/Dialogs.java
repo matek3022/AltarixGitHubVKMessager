@@ -1,8 +1,7 @@
-package com.example.vk_mess_demo_00001;
+package com.example.vk_mess_demo_00001.VKObjects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 

@@ -1,9 +1,7 @@
-package com.example.vk_mess_demo_00001;
+package com.example.vk_mess_demo_00001.VKObjects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.util.ArrayList;
 
 /**
  * Created by Каракатица on 07.10.2016.
@@ -52,12 +50,52 @@ public class User  implements Parcelable {
     }
     private String first_name;
     private String last_name;
+    private String photo_max_orig;
+    private String photo_400_orig;
     private String photo_200;
     private String photo_100;
     private String photo_50;
     private String body;
     private int online;
     private int id;
+    private city city;
+    private country country;
+    private String university_name;
+    private String faculty_name;
+    private String education_form;
+    private String education_status;
+    private String bdate;
+    private String mobile_phone;
+    private String home_phone;
+
+    public String getUniversity_name() {
+        return university_name;
+    }
+
+    public String getFaculty_name() {
+        return faculty_name;
+    }
+
+    public String getEducation_form() {
+        return education_form;
+    }
+
+    public String getEducation_status() {
+        return education_status;
+    }
+
+    public String getBdate() {
+        return bdate;
+    }
+
+    public String getMobile_phone() {
+        return mobile_phone;
+    }
+
+    public String getHome_phone() {
+        return home_phone;
+    }
+
     public  int getOnline(){
         return online;
     }
@@ -67,6 +105,14 @@ public class User  implements Parcelable {
     }
     public String getFirst_name() {
         return first_name;
+    }
+
+    public String getPhoto_max_orig() {
+        return photo_max_orig;
+    }
+
+    public String getPhoto_400_orig() {
+        return photo_400_orig;
     }
 
     public String getPhoto_100() {
@@ -100,6 +146,14 @@ public class User  implements Parcelable {
         online=i;
     }
 
+    public User.city getCity() {
+        return city;
+    }
+
+    public User.country getCountry() {
+        return country;
+    }
+
     public static Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel source) {
@@ -111,5 +165,29 @@ public class User  implements Parcelable {
             return new User[size];
         }
     };
+    public  class city{
+        private int id;
+        private String title;
+
+        public int getId() {
+            return id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+    }
+    public  class country{
+        private int id;
+        private String title;
+
+        public int getId() {
+            return id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+    }
 
 }

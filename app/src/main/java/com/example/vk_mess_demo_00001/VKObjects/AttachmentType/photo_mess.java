@@ -1,10 +1,11 @@
-package com.example.vk_mess_demo_00001;
+package com.example.vk_mess_demo_00001.VKObjects.AttachmentType;
 
 /**
  * Created by Каракатица on 16.10.2016.
  */
 
 public class photo_mess {
+    private int id;
     private int owner_id;
     private String photo_75;
     private String photo_130;
@@ -25,6 +26,10 @@ public class photo_mess {
 
     public int getWidth() {
         return width;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public int getOwner_id() {

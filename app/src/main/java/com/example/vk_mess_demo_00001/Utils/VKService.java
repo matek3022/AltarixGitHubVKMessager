@@ -1,4 +1,12 @@
-package com.example.vk_mess_demo_00001;
+package com.example.vk_mess_demo_00001.Utils;
+
+import com.example.vk_mess_demo_00001.Utils.namesChat;
+import com.example.vk_mess_demo_00001.VKObjects.Dialogs;
+import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
+import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
+import com.example.vk_mess_demo_00001.VKObjects.User;
+import com.example.vk_mess_demo_00001.VKObjects.item;
+import com.example.vk_mess_demo_00001.VKObjects.video_iformation;
 
 import java.util.ArrayList;
 
@@ -18,8 +26,8 @@ public interface VKService {
                                                   @Query("fields") String fields);
     @GET("messages.getDialogs?v=5.57&preview_length=50")
     Call<ServerResponse<ItemMess<ArrayList<item>>>> getDialogs (@Query("access_token") String access_token,
-                                                                         @Query("count") int count,
-                                                                         @Query("offset") int offset);
+                                                                @Query("count") int count,
+                                                                @Query("offset") int offset);
 
     @GET("messages.getHistory?v=5.57")
     Call<ServerResponse<ItemMess<ArrayList<Dialogs>>>> getHistory(@Query("access_token") String access_token,

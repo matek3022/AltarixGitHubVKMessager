@@ -1,15 +1,12 @@
-package com.example.vk_mess_demo_00001;
+package com.example.vk_mess_demo_00001.Activitys;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,8 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,6 +25,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.vk_mess_demo_00001.VKObjects.Attachment;
+import com.example.vk_mess_demo_00001.VKObjects.Dialogs;
+import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
+import com.example.vk_mess_demo_00001.R;
+import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
+import com.example.vk_mess_demo_00001.VKObjects.User;
+import com.example.vk_mess_demo_00001.Utils.Util;
+import com.example.vk_mess_demo_00001.Utils.VKService;
+import com.example.vk_mess_demo_00001.VKObjects.video_iformation;
 import com.luseen.autolinklibrary.AutoLinkMode;
 import com.luseen.autolinklibrary.AutoLinkOnClickListener;
 import com.luseen.autolinklibrary.AutoLinkTextView;
@@ -37,7 +41,6 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,14 +51,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
-public class Main3Activity extends AppCompatActivity {
+public class DialogMessageActivity extends AppCompatActivity {
 
     private int user_id;
     private int chat_id;
     private String title;
-    ArrayList<namesChat> names;
+    ArrayList<User> names;
     Adapter adapter;
     Button qwe;
     ListView listView;
@@ -95,7 +97,6 @@ public class Main3Activity extends AppCompatActivity {
             }
         });
         qwe = (Button) findViewById(R.id.button);
-
         qwe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -114,7 +115,9 @@ public class Main3Activity extends AppCompatActivity {
                     if (chat_id != 0) {
                         kek = 0;
                     }
-                    Call<ServerResponse> call = service.sendMessage(Main2Activity.TOKEN, kek, message, chat_id, 2000000000 + chat_id);
+                    final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
+                    String TOKEN = Token.getString("token_string","");
+                    Call<ServerResponse> call = service.sendMessage(TOKEN, kek, message, chat_id, 2000000000 + chat_id);
 
                     call.enqueue(new Callback<ServerResponse>() {
                         @Override
@@ -141,74 +144,102 @@ public class Main3Activity extends AppCompatActivity {
                 }else {
                     refreshLayout.setRefreshing(false);
                     Toast toast = Toast.makeText(getApplicationContext(),
-                            "Void messageыыыыы", Toast.LENGTH_SHORT);
+                            "Void message", Toast.LENGTH_SHORT);
                     //toast.setGravity(Gravity.CENTER, 0, 0);
-
                     toast.show();
                 }
             }
         });
+    }
+    @Override
+    public void onBackPressed() {
+//        Log.wtf("back","adapter.fwd_mess.size()= "+adapter.fwd_mess.size());
+        if (adapter.fwd_mess.size()>1){
+            adapter.fwd_mess.remove(adapter.fwd_mess.size()-1);
+            adapter.items=adapter.fwd_mess.get(adapter.fwd_mess.size()-1);
+            adapter.notifyDataSetChanged();
+            listView.setSelection(listView.getCount() - 1);
+        }else {
+            super.onBackPressed();
+        }
     }
     public static String convertMonth(int num) {
         String[] months = {"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                 "Aug", "Sep", "Oct", "Nov", "Dec"};
         return months[num];
     }
+    public String name_rec(Dialogs contain_mess){
+        String str="";
+        str=","+contain_mess.getUser_id();
+        for (int i = 0;i<contain_mess.getFwd_messages().size();i++){
+            str+=name_rec(contain_mess.getFwd_messages().get(i));
+        }
+        return str;
+    }
     public void refresh(int off) {
         refreshLayout.setRefreshing(true);
         adapter = new Adapter(this);
-        names = new ArrayList<namesChat>();
+        names = new ArrayList<User>();
         VKService service = retrofit.create(VKService.class);
 
-        Call<ServerResponse<ItemMess<ArrayList<Dialogs>>>> call = service.getHistory(Main2Activity.TOKEN, 20, off, user_id);
+        final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
+        String TOKEN = Token.getString("token_string","");
+        Call<ServerResponse<ItemMess<ArrayList<Dialogs>>>> call = service.getHistory(TOKEN, 20, off, user_id);
 
         call.enqueue(new Callback<ServerResponse<ItemMess<ArrayList<Dialogs>>>>() {
             @Override
             public void onResponse(Call<ServerResponse<ItemMess<ArrayList<Dialogs>>>> call, Response<ServerResponse<ItemMess<ArrayList<Dialogs>>>> response) {
                 Log.wtf("motya", response.raw().toString());
                 ArrayList<Dialogs> l = response.body().getResponse().getitem();
+                String people_id=""+l.get(0).getUser_id();
                 for (int i=l.size()-1; i>=0;i--){
+                    people_id+=name_rec(l.get(i));
                     adapter.items.add(l.get(i));
                 }
+                adapter.fwd_mess.add(adapter.items);
+                Log.wtf("names",people_id);
                 listView = (ListView) findViewById(R.id.listView);
                 listView.setAdapter(adapter);
                 if (chat_id==0) {
                     adapter.notifyDataSetChanged();
                 }
                 refreshLayout.setRefreshing(false);
-                if (chat_id!=0){
 
-                    VKService service = retrofit.create(VKService.class);
 
-                    Call<ServerResponse<ArrayList<namesChat>>> call1 = service.getChatUsers(Main2Activity.TOKEN, chat_id,"photo_100,online");
+                //if (chat_id!=0){
+                VKService service = retrofit.create(VKService.class);
+                final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
+                String TOKEN = Token.getString("token_string","");
+                Call<ServerResponse<ArrayList<User>>> call1 = service.getUser(TOKEN, people_id, "photo_100,online");
 
-                    call1.enqueue(new Callback<ServerResponse<ArrayList<namesChat>>>() {
-                        @Override
-                        public void onResponse(Call<ServerResponse<ArrayList<namesChat>>> call1, Response<ServerResponse<ArrayList<namesChat>>> response) {
-                            Log.wtf("motya", response.raw().toString());
-                            ArrayList<namesChat> l = response.body().getResponse();
+                call1.enqueue(new Callback<ServerResponse<ArrayList<User>>>() {
+                    @Override
+                    public void onResponse(Call<ServerResponse<ArrayList<User>>> call1, Response<ServerResponse<ArrayList<User>>> response) {
+                        Log.wtf("motya", response.raw().toString());
+                        ArrayList<User> l = response.body().getResponse();
 
-                            for (int i=0; i<l.size();i++){
-                                names.add(l.get(i));
-                            }
-                            refreshLayout.setRefreshing(false);
-                            adapter.notifyDataSetChanged();
+                        for (int i = 0; i < l.size(); i++) {
+                            names.add(l.get(i));
                         }
+                        refreshLayout.setRefreshing(false);
+                        adapter.notifyDataSetChanged();
+                    }
 
-                        @Override
-                        public void onFailure(Call<ServerResponse<ArrayList<namesChat>>> call1, Throwable t) {
-                            refreshLayout.setRefreshing(false);
-                            Toast toast = Toast.makeText(getApplicationContext(),
-                                    "              Internet connection is lost              ", Toast.LENGTH_SHORT);
-                            toast.setGravity(Gravity.CENTER, 0, 0);
-                            LinearLayout toastContainer = (LinearLayout) toast.getView();
-                            ImageView catImageView = new ImageView(getApplicationContext());
-                            catImageView.setImageResource(R.drawable.catsad);
-                            toastContainer.addView(catImageView, 0);
-                            toast.show();
-                        }
-                    });
-                }
+                    @Override
+                    public void onFailure(Call<ServerResponse<ArrayList<User>>> call1, Throwable t) {
+                        refreshLayout.setRefreshing(false);
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "              Internet connection is lost              ", Toast.LENGTH_SHORT);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        LinearLayout toastContainer = (LinearLayout) toast.getView();
+                        ImageView catImageView = new ImageView(getApplicationContext());
+                        catImageView.setImageResource(R.drawable.catsad);
+                        toastContainer.addView(catImageView, 0);
+                        toast.show();
+                    }
+                });
+
+                //}
             }
 
             @Override
@@ -244,7 +275,8 @@ public class Main3Activity extends AppCompatActivity {
     public class  Adapter extends BaseAdapter {
 
         ArrayList<Dialogs> items;//класс список
-        ArrayList<Dialogs> fwd_mess;
+        ArrayList<ArrayList<Dialogs>> fwd_mess;
+        ArrayList<Dialogs> reserv;
         Context context;
         public Adapter(Context con) {
             items = new ArrayList<>();
@@ -270,6 +302,7 @@ public class Main3Activity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             final Dialogs mess = getItem(position);
+            reserv=items;
             SimpleDateFormat year = new SimpleDateFormat("yyyy");
             SimpleDateFormat month = new SimpleDateFormat("MM");
             SimpleDateFormat day = new SimpleDateFormat("dd");
@@ -281,26 +314,29 @@ public class Main3Activity extends AppCompatActivity {
                 convertView = getLayoutInflater().inflate(R.layout.messin, null);
                 convertView.setBackgroundColor(Color.rgb(233, 237, 245));
                 ((TextView) convertView.findViewById(R.id.textView3)).setText("");
-                if (chat_id!=0) {
-                    for (int i=0;i<names.size();i++){
-                        if (mess.getUser_id()==names.get(i).getUser_id()){
-                            if (names.get(i).getOnline() == 1) {
-                                ((TextView) convertView.findViewById(R.id.textView3)).setText(names.get(i).getFirst_name() + " " + names.get(i).getLast_name() + " (Online)");
-                            }else {
-                                ((TextView) convertView.findViewById(R.id.textView3)).setText(names.get(i).getFirst_name() + " " + names.get(i).getLast_name());
-                            }
-                            if (setting.getBoolean("photouserOn",true))
-                                Picasso.with(context)
-                                        .load(names.get(i).getPhoto_100())
-                                        .resize(150, 150)
-                                        .centerCrop()
-                                        .into((ImageView) convertView.findViewById(R.id.imageView));
-                            break;
+                for (int i = 0; i < names.size(); i++) {
+                    if (mess.getUser_id() == names.get(i).getId()) {
+                        if (names.get(i).getOnline() == 1) {
+                            ((TextView) convertView.findViewById(R.id.textView3)).setText(names.get(i).getFirst_name() + " " + names.get(i).getLast_name() + " (Online)");
+                        } else {
+                            ((TextView) convertView.findViewById(R.id.textView3)).setText(names.get(i).getFirst_name() + " " + names.get(i).getLast_name());
                         }
+                        if (setting.getBoolean("photouserOn", true)) {
+                            Picasso.with(context)
+                                    .load(names.get(i).getPhoto_100())
+                                    .placeholder(R.drawable.whitephoto)
+                                    .into((ImageView) convertView.findViewById(R.id.imageView));
+                            convertView.findViewById(R.id.imageView).setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(DialogMessageActivity.this, UserActivity.class);
+                                    intent.putExtra("userID", mess.getUser_id());
+                                    startActivity(intent);
+                                }
+                            });
+                        }
+                        break;
                     }
-                }else {
-
-                    ((TextView) convertView.findViewById(R.id.textView3)).setText(title);
                 }
             }
             else {
@@ -320,6 +356,9 @@ public class Main3Activity extends AppCompatActivity {
                         while(matchedText.contains(" ")) {
                             matchedText=matchedText.replace(" ", "");
                         }
+                        while(matchedText.contains("\n")){
+                            matchedText=matchedText.replace("\n", "");
+                        }
                         Log.wtf("motya","fix_matchetText="+matchedText);
                         Util.goToUrl(context, matchedText);
                     }
@@ -336,13 +375,16 @@ public class Main3Activity extends AppCompatActivity {
                     //ImageView photochka = (ImageView) cont.findViewById(R.id.imageView);
                     TextView text = (TextView) cont.findViewById(R.id.textView3);
                     text.setTextColor(Color.BLUE);
-                    text.setText("ыы");
+                    text.setText("Пересланые сообщения");
+                    line.addView(cont);
                     text.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            ArrayList<Dialogs> fwrd = new ArrayList<>();
                             for (int i = 0; i<mess.getFwd_messages().size();i++)
-                                fwd_mess.add(mess.getFwd_messages().get(i));
-                            items=fwd_mess;
+                                fwrd.add(mess.getFwd_messages().get(i));
+                            fwd_mess.add(fwrd);
+                            items=fwd_mess.get(fwd_mess.size()-1);
                             adapter.notifyDataSetChanged();
                         }
                     });
@@ -392,7 +434,7 @@ public class Main3Activity extends AppCompatActivity {
                             photochka.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    Intent intent = new Intent(Main3Activity.this, PhotoActivity.class);
+                                    Intent intent = new Intent(DialogMessageActivity.this, PhotoActivity.class);
                                     intent.putExtra("photo", finalphoto);
                                     startActivity(intent);
                                 }
@@ -439,7 +481,9 @@ public class Main3Activity extends AppCompatActivity {
                                 Toast toast = Toast.makeText(getApplicationContext(),
                                         "Loading...", Toast.LENGTH_LONG);
                                 toast.show();
-                                Call<ServerResponse<ItemMess<ArrayList<video_iformation>>>> call = service.getVideos(Main2Activity.TOKEN,video);
+                                final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
+                                String TOKEN = Token.getString("token_string","");
+                                Call<ServerResponse<ItemMess<ArrayList<video_iformation>>>> call = service.getVideos(TOKEN,video);
 
                                 call.enqueue(new Callback<ServerResponse<ItemMess<ArrayList<video_iformation>>>>() {
                                     @Override
@@ -514,38 +558,38 @@ public class Main3Activity extends AppCompatActivity {
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (Main2Activity.mediaPlayer != null) {
-                                    Main2Activity.mediaPlayer.seekTo(Main2Activity.mediaPlayer.getCurrentPosition() - 5000);
+                                if (DialogsActivity.mediaPlayer != null) {
+                                    DialogsActivity.mediaPlayer.seekTo(DialogsActivity.mediaPlayer.getCurrentPosition() - 5000);
                                 }
                             }
                         });
                         button1.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (Main2Activity.mediaPlayer != null) {
-                                    Log.wtf("audio","stop seek= "+Main2Activity.mediaPlayer.getCurrentPosition());
-                                    if (Main2Activity.mediaPlayer.getCurrentPosition()==0) {
+                                if (DialogsActivity.mediaPlayer != null) {
+                                    Log.wtf("audio","stop seek= "+ DialogsActivity.mediaPlayer.getCurrentPosition());
+                                    if (DialogsActivity.mediaPlayer.getCurrentPosition()==0) {
                                         try {
-                                            Main2Activity.mediaPlayer.release();
-                                            Main2Activity.mediaPlayer = null;
-                                            Main2Activity.mediaPlayer = new MediaPlayer();
-                                            Main2Activity.mediaPlayer.setDataSource(url);
+                                            DialogsActivity.mediaPlayer.release();
+                                            DialogsActivity.mediaPlayer = null;
+                                            DialogsActivity.mediaPlayer = new MediaPlayer();
+                                            DialogsActivity.mediaPlayer.setDataSource(url);
                                             Log.wtf("audio","url start= "+url);
-                                            Main2Activity.mediaPlayer.prepare();
-                                            Main2Activity.mediaPlayer.start();
+                                            DialogsActivity.mediaPlayer.prepare();
+                                            DialogsActivity.mediaPlayer.start();
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                     }else {
-                                        Main2Activity.mediaPlayer.start();
+                                        DialogsActivity.mediaPlayer.start();
                                     }
                                 }else{
                                     try {
-                                        Main2Activity.mediaPlayer = new MediaPlayer();
-                                        Main2Activity.mediaPlayer.setDataSource(url);
+                                        DialogsActivity.mediaPlayer = new MediaPlayer();
+                                        DialogsActivity.mediaPlayer.setDataSource(url);
                                         Log.wtf("audio","url start= "+url);
-                                        Main2Activity.mediaPlayer.prepare();
-                                        Main2Activity.mediaPlayer.start();
+                                        DialogsActivity.mediaPlayer.prepare();
+                                        DialogsActivity.mediaPlayer.start();
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -556,26 +600,26 @@ public class Main3Activity extends AppCompatActivity {
                         button2.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (Main2Activity.mediaPlayer != null) {
-                                    Main2Activity.mediaPlayer.pause();
+                                if (DialogsActivity.mediaPlayer != null) {
+                                    DialogsActivity.mediaPlayer.pause();
                                 }
                             }
                         });
                         button3.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (Main2Activity.mediaPlayer != null) {
-                                    Main2Activity.mediaPlayer.seekTo(Main2Activity.mediaPlayer.getCurrentPosition() + 5000);
+                                if (DialogsActivity.mediaPlayer != null) {
+                                    DialogsActivity.mediaPlayer.seekTo(DialogsActivity.mediaPlayer.getCurrentPosition() + 5000);
                                 }
                             }
                         });
                         button4.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (Main2Activity.mediaPlayer != null) {
-                                    Main2Activity.mediaPlayer.pause();
-                                    Main2Activity.mediaPlayer.seekTo(0);
-                                    Log.wtf("audio","stop seek= "+Main2Activity.mediaPlayer.getCurrentPosition());
+                                if (DialogsActivity.mediaPlayer != null) {
+                                    DialogsActivity.mediaPlayer.pause();
+                                    DialogsActivity.mediaPlayer.seekTo(0);
+                                    Log.wtf("audio","stop seek= "+ DialogsActivity.mediaPlayer.getCurrentPosition());
                                 }
                             }
                         });
@@ -594,13 +638,16 @@ public class Main3Activity extends AppCompatActivity {
                     //ImageView photochka = (ImageView) cont.findViewById(R.id.imageView);
                     TextView text = (TextView) cont.findViewById(R.id.textView3);
                     text.setTextColor(Color.BLUE);
-                    text.setText("ыы");
+                    text.setText("Пересланые сообщения");
+                    line.addView(cont);
                     text.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            ArrayList<Dialogs> fwrd = new ArrayList<>();
                             for (int i = 0; i<mess.getFwd_messages().size();i++)
-                                fwd_mess.add(mess.getFwd_messages().get(i));
-                            items=fwd_mess;
+                                fwrd.add(mess.getFwd_messages().get(i));
+                            fwd_mess.add(fwrd);
+                            items=fwrd;
                             adapter.notifyDataSetChanged();
                         }
                     });

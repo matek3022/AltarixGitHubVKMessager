@@ -1,10 +1,11 @@
-package com.example.vk_mess_demo_00001;
+package com.example.vk_mess_demo_00001.Activitys;
 
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 
+import com.example.vk_mess_demo_00001.R;
 import com.squareup.picasso.Picasso;
 
 import pl.droidsonroids.gif.GifDrawable;
@@ -26,8 +27,6 @@ public class PhotoActivity extends AppCompatActivity {
 
         Picasso.with(this)
                 .load(photo)
-//                .placeholder(R.drawable.load)
-//                .error(R.drawable.error)
                 .into(view);
         PhotoViewAttacher mAttacher;
         mAttacher = new PhotoViewAttacher(view);

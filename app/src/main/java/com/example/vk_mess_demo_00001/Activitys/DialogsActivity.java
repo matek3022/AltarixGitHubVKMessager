@@ -1,12 +1,10 @@
-package com.example.vk_mess_demo_00001;
+package com.example.vk_mess_demo_00001.Activitys;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.MediaPlayer;
-import android.net.Uri;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,10 +25,15 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.common.api.GoogleApiClient;
+
+import com.example.vk_mess_demo_00001.R;
+import com.example.vk_mess_demo_00001.VKObjects.Dialogs;
+import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
+import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
+import com.example.vk_mess_demo_00001.VKObjects.User;
+import com.example.vk_mess_demo_00001.VKObjects.item;
+import com.example.vk_mess_demo_00001.Utils.VKService;
+import com.example.vk_mess_demo_00001.Utils.namesChat;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -41,8 +44,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class Main2Activity extends AppCompatActivity {
-    public static String TOKEN = "cf561f6c64e197e63cff33065cdf789bd8dd6159087fceac7df5178ead82eb23d893913e42679f502f665";
+public class DialogsActivity extends AppCompatActivity {
     public static MediaPlayer mediaPlayer;
     SwipeRefreshLayout refreshLayout;
     Adapter adapter;
@@ -74,8 +76,9 @@ public class Main2Activity extends AppCompatActivity {
                             .build();
 
                     VKService service = retrofit.create(VKService.class);
-
-                    Call<ServerResponse> call = service.setOnline(Main2Activity.TOKEN);
+                    final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
+                    String TOKEN = Token.getString("token_string","");
+                    Call<ServerResponse> call = service.setOnline(TOKEN);
 
                     call.enqueue(new Callback<ServerResponse>() {
                         @Override
@@ -115,10 +118,7 @@ public class Main2Activity extends AppCompatActivity {
                     off += 20;
                     refresh(off);
                 } else {
-                    Intent intent = new Intent(Main2Activity.this, Main3Activity.class);
-//                    Log.wtf("motya", "new User_id " + adapter.getItem(position).getUser_id());
-//                    Log.wtf("motya", "new Title " + adapter.getItem(position).getTitle());
-//                    Log.wtf("motya", "new Chat_id " + adapter.getItem(position).getChat_id());
+                    Intent intent = new Intent(DialogsActivity.this, DialogMessageActivity.class);
                     intent.putExtra("userID", adapter.getItem(position).getMessage().getUser_id());
                     intent.putExtra("Title", adapter.getItem(position).getMessage().getTitle());
                     intent.putExtra("ChatID", adapter.getItem(position).getMessage().getChat_id());
@@ -134,12 +134,9 @@ public class Main2Activity extends AppCompatActivity {
         final Context con = this;
         stroka = "";
         chek = true;
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("https://api.vk.com/method/")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-
         VKService service = retrofit.create(VKService.class);
+        final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
+        String TOKEN = Token.getString("token_string","");
         Call<ServerResponse<ItemMess<ArrayList<item>>>> call = service.getDialogs(TOKEN, 20, offset);
 
         call.enqueue(new Callback<ServerResponse<ItemMess<ArrayList<item>>>>() {
@@ -157,13 +154,10 @@ public class Main2Activity extends AppCompatActivity {
                     }
                 }
                 adapter.items.add(new item());
-//                Retrofit retrofit = new Retrofit.Builder()
-//                        .baseUrl("https://api.vk.com/method/")
-//                        .addConverterFactory(GsonConverterFactory.create())
-//                        .build();
-
+                final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
+                String TOKEN = Token.getString("token_string","");
                 VKService service = retrofit.create(VKService.class);
-                Call<ServerResponse<ArrayList<User>>> call1 = service.getUser("cf561f6c64e197e63cff33065cdf789bd8dd6159087fceac7df5178ead82eb23d893913e42679f502f665",
+                Call<ServerResponse<ArrayList<User>>> call1 = service.getUser(TOKEN,
                         stroka,
                         "photo_100, online");
                 call1.enqueue(new Callback<ServerResponse<ArrayList<User>>>() {
@@ -227,7 +221,7 @@ public class Main2Activity extends AppCompatActivity {
         switch (item.getItemId()){
             case R.id.titleee:
                 //Toast.makeText(this, "sdjklhnfuise", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(Main2Activity.this, Setting.class);
+                Intent intent = new Intent(DialogsActivity.this, SettingActivity.class);
                 startActivity(intent);
                 return true;
         }
@@ -286,7 +280,7 @@ public class Main2Activity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             item item=getItem(position);
-            Dialogs dialog = item.getMessage();
+            final Dialogs dialog = item.getMessage();
             namesChat nameme = new namesChat(0,10,"","","");
             SharedPreferences setting = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
             for (int i=0;i<names.size();i++){
@@ -312,17 +306,20 @@ public class Main2Activity extends AppCompatActivity {
                                     .centerCrop()
                                     .into((ImageView) convertView.findViewById(R.id.imageView5));
                         }
-                        if (setting.getBoolean("photouserOn",true))
-                        Picasso.with(context)
-                                .load(nameme.getPhoto_100())
-                                .resize(150, 150)
-                                .centerCrop()
-                                .into((ImageView) convertView.findViewById(R.id.imageView4));
+                        if (setting.getBoolean("photouserOn",true)) {
+                            Picasso.with(context)
+                                    .load(nameme.getPhoto_100())
+                                    .placeholder(R.drawable.whitephoto)
+                                    .resize(150, 150)
+                                    .centerCrop()
+                                    .into((ImageView) convertView.findViewById(R.id.imageView4));
+                        }
                     } else {
                         if (setting.getBoolean("photouserOn",true))
                         if (dialog.getPhoto_100() != null) {
                             Picasso.with(context)
                                     .load(dialog.getPhoto_100())
+                                    .placeholder(R.drawable.whitephoto)
                                     .resize(150, 150)
                                     .centerCrop()
                                     .into((ImageView) convertView.findViewById(R.id.imageView4));
@@ -341,14 +338,8 @@ public class Main2Activity extends AppCompatActivity {
                         ((TextView) convertView.findViewById(R.id.textView9)).setBackgroundColor(Color.WHITE);
                     }
                     if (dialog.getRead_state() == 0) {
-//                    Picasso.with(context)
-//                            .load(R.drawable.tochka)
-//                            .into((ImageView) convertView.findViewById(R.id.imageView4));
                         ((TextView) convertView.findViewById(R.id.textView6)).setBackgroundColor(Color.rgb(236, 235, 235));
                     } else {
-//                    Picasso.with(context)
-//                            .load(R.drawable.white)
-//                            .into((ImageView) convertView.findViewById(R.id.imageView4));
                         ((TextView) convertView.findViewById(R.id.textView6)).setBackgroundColor(Color.WHITE);
                     }
                     if (dialog.getBody() != "") {
@@ -375,6 +366,14 @@ public class Main2Activity extends AppCompatActivity {
                     if (dialog.getChat_id() == 0) {
                         ((TextView) convertView.findViewById(R.id.textView)).setText(nameme.getFirst_name() + " " + nameme.getLast_name());
                         dialog.setTitle(nameme.getFirst_name() + " " + nameme.getLast_name());
+                        convertView.findViewById(R.id.imageView4).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(DialogsActivity.this, UserActivity.class);
+                                intent.putExtra("userID", dialog.getUser_id());
+                                startActivity(intent);
+                            }
+                        });
                     } else {
                         ((TextView) convertView.findViewById(R.id.textView)).setText(dialog.getTitle());
                     }

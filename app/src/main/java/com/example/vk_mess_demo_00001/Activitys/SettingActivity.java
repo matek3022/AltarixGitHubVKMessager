@@ -1,13 +1,18 @@
-package com.example.vk_mess_demo_00001;
+package com.example.vk_mess_demo_00001.Activitys;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
-public class Setting extends AppCompatActivity {
+import com.example.vk_mess_demo_00001.R;
+
+public class SettingActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +66,20 @@ public class Setting extends AppCompatActivity {
                     editor.putBoolean("onlineOn",isChecked);
                     editor.apply();
                 }
+            }
+        });
+        Button button = (Button) findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = Token.edit();
+                editor.putString("token_string","");
+                editor.apply();
+                Intent intent = new Intent(SettingActivity.this,StartActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                SettingActivity.this.finish();
             }
         });
     }

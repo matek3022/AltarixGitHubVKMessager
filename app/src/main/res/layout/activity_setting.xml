@@ -8,11 +8,11 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.vk_mess_demo_00001.Setting">
+    tools:context="com.example.vk_mess_demo_00001.Activitys.SettingActivity">
 
     <Switch
         android:text="Отображать фото профилей"
-        android:layout_width="350dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/switch1"
         android:switchTextAppearance="@style/TextAppearance.AppCompat.Body1"
@@ -47,4 +47,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignRight="@+id/switch3"
         android:layout_alignEnd="@+id/switch3" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/button"
+        android:text="Log out"/>
 </RelativeLayout>

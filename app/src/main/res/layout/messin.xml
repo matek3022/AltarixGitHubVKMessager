@@ -7,27 +7,20 @@
 
     <RelativeLayout
         android:background="@drawable/circle"
-        android:padding="5dp"
-        android:layout_margin="5dp"
+        android:padding="2dp"
+        android:layout_margin="3dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/relativeLayout">
 
         <ImageView
-            android:layout_marginLeft="5dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:id="@+id/imageView" />
+            android:id="@+id/imageView"/>
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginEnd="5dp"
+            android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/imageView"
             android:layout_toEndOf="@+id/imageView"
             android:text="TextView"
@@ -39,18 +32,18 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/textView"
             android:layout_alignStart="@+id/textView"
+            android:layout_toRightOf="@+id/imageView"
+            android:layout_toEndOf="@+id/imageView"
             android:layout_below="@+id/textView"
-            android:layout_marginBottom="5dp"
-            android:layout_marginRight="5dp"
             android:text="TextView"
             android:textColorLink="?attr/actionMenuTextColor" />
 
         <TextView
             android:id="@+id/textView3"
+            android:layout_marginLeft="1dp"
+            android:layout_marginStart="1dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/textView"
-            android:layout_alignTop="@+id/textView"
             android:layout_toEndOf="@+id/textView"
             android:layout_toRightOf="@+id/textView"
             android:text="TextView"
@@ -59,8 +52,8 @@
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textView2"
-            android:layout_alignStart="@+id/textView2"
+            android:layout_toRightOf="@+id/imageView"
+            android:layout_toEndOf="@+id/imageView"
             android:layout_below="@+id/textView2"
             android:id="@+id/line">
         </LinearLayout>
