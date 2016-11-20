@@ -33,7 +33,7 @@ public class UserActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_user);
         final int user_id = getIntent().getIntExtra("userID", 0);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.vk.com/method/")

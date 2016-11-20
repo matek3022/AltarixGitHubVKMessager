@@ -72,7 +72,7 @@ public class DialogMessageActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main3);
+        setContentView(R.layout.activity_dialog_message);
         user_id = getIntent().getIntExtra("userID", 0);
         chat_id=getIntent().getIntExtra("ChatID",0);
         if (chat_id!=0) user_id=2000000000 + chat_id;

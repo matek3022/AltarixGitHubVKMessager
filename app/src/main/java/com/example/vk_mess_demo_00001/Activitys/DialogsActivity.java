@@ -60,7 +60,7 @@ public class DialogsActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_dialogs);
         setTitle(getString(R.string.dialogs));
         chek=true;
         ListView listView = (ListView) findViewById(R.id.listView);
