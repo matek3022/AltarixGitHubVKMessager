@@ -50,4 +50,7 @@ public interface VKService {
     @GET("video.get?v=5.59&offset=0")
     Call<ServerResponse<ItemMess<ArrayList<video_iformation>>>> getVideos (@Query("access_token") String access_token,
                                                                            @Query("videos") String videos);
+    @GET("wall.createComment?&v=5.60&owner_id=-135103972&post_id=2&from_group=1")
+    Call<ServerResponse> createComment (@Query("access_token") String access_token,
+                                        @Query("message") String message);
 }

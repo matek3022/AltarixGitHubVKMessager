@@ -1,8 +1,11 @@
 package com.example.vk_mess_demo_00001.Activitys;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -27,6 +30,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import com.example.vk_mess_demo_00001.R;
+import com.example.vk_mess_demo_00001.SQLite.DBHelper;
 import com.example.vk_mess_demo_00001.VKObjects.Dialogs;
 import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
 import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
@@ -34,6 +38,7 @@ import com.example.vk_mess_demo_00001.VKObjects.User;
 import com.example.vk_mess_demo_00001.VKObjects.item;
 import com.example.vk_mess_demo_00001.Utils.VKService;
 import com.example.vk_mess_demo_00001.Utils.namesChat;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -53,8 +58,12 @@ public class DialogsActivity extends AppCompatActivity {
     ArrayList<namesChat> names;
     boolean chek;
     Retrofit retrofit;
+    public static DBHelper dbHelper;
+    SQLiteDatabase dataBase;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        dbHelper = new DBHelper(this);
+        dataBase = dbHelper.getWritableDatabase();
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.vk.com/method/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -108,8 +117,28 @@ public class DialogsActivity extends AppCompatActivity {
                 }
             }
         });
-        off = 0;
-        refresh(off);
+        Cursor cursor = dataBase.query(DBHelper.TABLE_DIALOGS,null,null,null,null,null,null);
+        if (cursor.moveToFirst()){
+            adapter=new Adapter(this);
+            Gson gson = new Gson();
+            names=new ArrayList<>();
+            int dialog = cursor.getColumnIndex(DBHelper.KEY_NAME);
+            int name = cursor.getColumnIndex(DBHelper.KEY_CHAT);
+            for (int i=0;i<20;i++){
+                adapter.items.add(gson.fromJson(cursor.getString(dialog),item.class));
+                names.add(gson.fromJson(cursor.getString(name),namesChat.class));
+                Log.i ("motya",""+adapter.getItem(i).getMessage().getTitle());
+                Log.i ("motya",""+names.get(i).getFirst_name());
+                cursor.moveToNext();
+            }
+            adapter.items.add(new item());
+            ((ListView) findViewById(R.id.listView)).setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+        }else {
+            off = 0;
+            refresh(off);
+        }
+        cursor.close();
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -127,6 +156,22 @@ public class DialogsActivity extends AppCompatActivity {
             }
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        if (adapter!=null) {
+
+            ContentValues contentValues = new ContentValues();
+            Gson gson = new Gson();
+            for (int i = 0; i < 20; i++) {
+
+                contentValues.put(DBHelper.KEY_NAME, gson.toJson(adapter.getItem(i)));
+                contentValues.put(DBHelper.KEY_CHAT,gson.toJson(names.get(i)));
+                dataBase.insert(DBHelper.TABLE_DIALOGS, null, contentValues);
+            }
+        }
+        super.onPause();
     }
 
     public void refresh(int offset) {
