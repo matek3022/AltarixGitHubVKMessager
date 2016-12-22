@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import com.example.vk_mess_demo_00001.R;
@@ -39,6 +40,7 @@ import com.example.vk_mess_demo_00001.VKObjects.item;
 import com.example.vk_mess_demo_00001.Utils.VKService;
 import com.example.vk_mess_demo_00001.Utils.namesChat;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -60,6 +62,7 @@ public class DialogsActivity extends AppCompatActivity {
     Retrofit retrofit;
     public static DBHelper dbHelper;
     SQLiteDatabase dataBase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         dbHelper = new DBHelper(this);
@@ -71,14 +74,14 @@ public class DialogsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialogs);
         setTitle(getString(R.string.dialogs));
-        chek=true;
+        chek = true;
         ListView listView = (ListView) findViewById(R.id.listView);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
         final SharedPreferences setting = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (setting.getBoolean("onlineOn",true)) {
+                if (setting.getBoolean("onlineOn", true)) {
                     Retrofit retrofit = new Retrofit.Builder()
                             .baseUrl("https://api.vk.com/method/")
                             .addConverterFactory(GsonConverterFactory.create())
@@ -86,7 +89,7 @@ public class DialogsActivity extends AppCompatActivity {
 
                     VKService service = retrofit.create(VKService.class);
                     final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
-                    String TOKEN = Token.getString("token_string","");
+                    String TOKEN = Token.getString("token_string", "");
                     Call<ServerResponse> call = service.setOnline(TOKEN);
 
                     call.enqueue(new Callback<ServerResponse>() {
@@ -117,25 +120,26 @@ public class DialogsActivity extends AppCompatActivity {
                 }
             }
         });
-        Cursor cursor = dataBase.query(DBHelper.TABLE_DIALOGS,null,null,null,null,null,null);
-        if (cursor.moveToFirst()){
-            adapter=new Adapter(this);
+        Cursor cursor = dataBase.query(DBHelper.TABLE_DIALOGS, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            adapter = new Adapter(this);
             Gson gson = new Gson();
-            names=new ArrayList<>();
             int dialog = cursor.getColumnIndex(DBHelper.KEY_NAME);
             int name = cursor.getColumnIndex(DBHelper.KEY_CHAT);
-            for (int i=0;i<20;i++){
-                adapter.items.add(gson.fromJson(cursor.getString(dialog),item.class));
-                names.add(gson.fromJson(cursor.getString(name),namesChat.class));
-                Log.i ("motya",""+adapter.getItem(i).getMessage().getTitle());
-                Log.i ("motya",""+names.get(i).getFirst_name());
+            for (int i = 0; i < cursor.getCount(); i++) {
+                adapter.items.add(gson.fromJson(cursor.getString(dialog), item.class));
+                if (i == 0) {
+                    names = gson.fromJson(cursor.getString(name), new TypeToken<List<namesChat>>(){}.getType());
+                }
+                Log.i("motya", "" + adapter.getItem(i).getMessage().getTitle());
+                Log.i("motya", "" + names.size() + names.get(0).getFirst_name());
                 cursor.moveToNext();
             }
             adapter.items.add(new item());
             listView.setAdapter(adapter);
-            chek=false;
+            chek = false;
             adapter.notifyDataSetChanged();
-        }else {
+        } else {
             off = 0;
             refresh(off);
         }
@@ -143,31 +147,34 @@ public class DialogsActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if (!chek) {
-                if (position == 20) {
-                    off += 20;
-                    refresh(off);
-                } else {
-                    Intent intent = new Intent(DialogsActivity.this, DialogMessageActivity.class);
-                    intent.putExtra("userID", adapter.getItem(position).getMessage().getUser_id());
-                    intent.putExtra("Title", adapter.getItem(position).getMessage().getTitle());
-                    intent.putExtra("ChatID", adapter.getItem(position).getMessage().getChat_id());
-                    startActivity(intent);
+                if (!chek) {
+                    if (position == 20) {
+                        off += 20;
+                        refresh(off);
+                    } else {
+                        Intent intent = new Intent(DialogsActivity.this, DialogMessageActivity.class);
+                        intent.putExtra("userID", adapter.getItem(position).getMessage().getUser_id());
+                        intent.putExtra("Title", adapter.getItem(position).getMessage().getTitle());
+                        intent.putExtra("ChatID", adapter.getItem(position).getMessage().getChat_id());
+                        startActivity(intent);
+                    }
                 }
-            }
             }
         });
     }
 
     @Override
     protected void onPause() {
-        if (adapter!=null) {
-            dataBase.delete(DBHelper.TABLE_DIALOGS,null,null);
+        if (adapter != null) {
+            dataBase.delete(DBHelper.TABLE_DIALOGS, null, null);
             ContentValues contentValues = new ContentValues();
             Gson gson = new Gson();
-            for (int i = 0; i < 20; i++) {
+            Log.i("motya", names.size() + " " + adapter.getCount());
+            for (int i = 0; i < adapter.getCount() - 1; i++) {
                 contentValues.put(DBHelper.KEY_NAME, gson.toJson(adapter.getItem(i)));
-                contentValues.put(DBHelper.KEY_CHAT,gson.toJson(names.get(i)));
+                if (i == 0) {
+                    contentValues.put(DBHelper.KEY_CHAT, gson.toJson(names));
+                }
                 dataBase.insert(DBHelper.TABLE_DIALOGS, null, contentValues);
             }
         }
@@ -181,7 +188,7 @@ public class DialogsActivity extends AppCompatActivity {
         chek = true;
         VKService service = retrofit.create(VKService.class);
         final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
-        String TOKEN = Token.getString("token_string","");
+        String TOKEN = Token.getString("token_string", "");
         Call<ServerResponse<ItemMess<ArrayList<item>>>> call = service.getDialogs(TOKEN, 20, offset);
 
         call.enqueue(new Callback<ServerResponse<ItemMess<ArrayList<item>>>>() {
@@ -191,7 +198,7 @@ public class DialogsActivity extends AppCompatActivity {
                 Log.wtf("motya", response.raw().toString());
                 adapter = new Adapter(con);
                 ArrayList<item> l = response.body().getResponse().getitem();
-                if (l.size()!=0) stroka+="" + l.get(0).getMessage().getUser_id();
+                if (l.size() != 0) stroka += "" + l.get(0).getMessage().getUser_id();
                 for (int i = 0; i < l.size(); i++) {
                     adapter.items.add(l.get(i));
                     if (i != 0) {
@@ -200,7 +207,7 @@ public class DialogsActivity extends AppCompatActivity {
                 }
                 adapter.items.add(new item());
                 final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
-                String TOKEN = Token.getString("token_string","");
+                String TOKEN = Token.getString("token_string", "");
                 VKService service = retrofit.create(VKService.class);
                 Call<ServerResponse<ArrayList<User>>> call1 = service.getUser(TOKEN,
                         stroka,
@@ -212,7 +219,7 @@ public class DialogsActivity extends AppCompatActivity {
                         ArrayList<User> l1 = response.body().getResponse();
                         names = new ArrayList<namesChat>();
                         for (int i = 0; i < l1.size(); i++) {
-                            names.add(new namesChat(l1.get(i).getId(),l1.get(i).getOnline(),l1.get(i).getFirst_name(),l1.get(i).getLast_name(),l1.get(i).getPhoto_100()));
+                            names.add(new namesChat(l1.get(i).getId(), l1.get(i).getOnline(), l1.get(i).getFirst_name(), l1.get(i).getLast_name(), l1.get(i).getPhoto_100()));
                         }
                         ListView listView = (ListView) findViewById(R.id.listView);
                         listView.setAdapter(adapter);
@@ -263,7 +270,7 @@ public class DialogsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.titleee:
                 //Toast.makeText(this, "sdjklhnfuise", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(DialogsActivity.this, SettingActivity.class);
@@ -324,18 +331,18 @@ public class DialogsActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            item item=getItem(position);
+            item item = getItem(position);
             final Dialogs dialog = item.getMessage();
-            namesChat nameme = new namesChat(0,10,"","","");
+            namesChat nameme = new namesChat(0, 10, "", "", "");
             SharedPreferences setting = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
-            for (int i=0;i<names.size();i++){
-                if (dialog.getUser_id()==names.get(i).getUser_id()){
+            for (int i = 0; i < names.size(); i++) {
+                if (dialog.getUser_id() == names.get(i).getUser_id()) {
                     nameme = names.get(i);
                     break;
                 }
             }
-            if (dialog.getRead_state()!=20) {
-                if (dialog.getUser_id()>=0) {
+            if (dialog.getRead_state() != 20) {
+                if (dialog.getUser_id() >= 0) {
                     convertView = getLayoutInflater().inflate(R.layout.item_list, null);
                     if (dialog.getChat_id() == 0) {
                         if (nameme.getOnline() != 0) {
@@ -351,7 +358,7 @@ public class DialogsActivity extends AppCompatActivity {
                                     .centerCrop()
                                     .into((ImageView) convertView.findViewById(R.id.imageView5));
                         }
-                        if (setting.getBoolean("photouserOn",true)) {
+                        if (setting.getBoolean("photouserOn", true)) {
                             Picasso.with(context)
                                     .load(nameme.getPhoto_100())
                                     .placeholder(R.drawable.whitephoto)
@@ -360,26 +367,26 @@ public class DialogsActivity extends AppCompatActivity {
                                     .into((ImageView) convertView.findViewById(R.id.imageView4));
                         }
                     } else {
-                        if (setting.getBoolean("photouserOn",true))
-                        if (dialog.getPhoto_100() != null) {
-                            Picasso.with(context)
-                                    .load(dialog.getPhoto_100())
-                                    .placeholder(R.drawable.whitephoto)
-                                    .resize(150, 150)
-                                    .centerCrop()
-                                    .into((ImageView) convertView.findViewById(R.id.imageView4));
-                        } else {
-                            Picasso.with(context)
-                                    .load("https://vk.com/images/soviet_200.png")
-                                    .resize(150, 150)
-                                    .centerCrop()
-                                    .into((ImageView) convertView.findViewById(R.id.imageView4));
-                        }
+                        if (setting.getBoolean("photouserOn", true))
+                            if (dialog.getPhoto_100() != null) {
+                                Picasso.with(context)
+                                        .load(dialog.getPhoto_100())
+                                        .placeholder(R.drawable.whitephoto)
+                                        .resize(150, 150)
+                                        .centerCrop()
+                                        .into((ImageView) convertView.findViewById(R.id.imageView4));
+                            } else {
+                                Picasso.with(context)
+                                        .load("https://vk.com/images/soviet_200.png")
+                                        .resize(150, 150)
+                                        .centerCrop()
+                                        .into((ImageView) convertView.findViewById(R.id.imageView4));
+                            }
                     }
-                    if (item.getUnread()!=0){
+                    if (item.getUnread() != 0) {
 
-                        ((TextView) convertView.findViewById(R.id.textView9)).setText(""+item.getUnread());
-                    }else {
+                        ((TextView) convertView.findViewById(R.id.textView9)).setText("" + item.getUnread());
+                    } else {
                         ((TextView) convertView.findViewById(R.id.textView9)).setBackgroundColor(Color.WHITE);
                     }
                     if (dialog.getRead_state() == 0) {
@@ -443,7 +450,7 @@ public class DialogsActivity extends AppCompatActivity {
                     } else {
                         ((TextView) convertView.findViewById(R.id.textView8)).setText("" + time_year);
                     }
-                }else {
+                } else {
                     convertView = getLayoutInflater().inflate(R.layout.item_list, null);
                     if (dialog.getOut() == 0) {
                         ((TextView) convertView.findViewById(R.id.textView6)).setText("" + dialog.getBody());
