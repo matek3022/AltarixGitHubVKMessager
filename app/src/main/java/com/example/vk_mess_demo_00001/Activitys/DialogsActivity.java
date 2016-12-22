@@ -132,7 +132,8 @@ public class DialogsActivity extends AppCompatActivity {
                 cursor.moveToNext();
             }
             adapter.items.add(new item());
-            ((ListView) findViewById(R.id.listView)).setAdapter(adapter);
+            listView.setAdapter(adapter);
+            chek=false;
             adapter.notifyDataSetChanged();
         }else {
             off = 0;
@@ -161,11 +162,10 @@ public class DialogsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         if (adapter!=null) {
-
+            dataBase.delete(DBHelper.TABLE_DIALOGS,null,null);
             ContentValues contentValues = new ContentValues();
             Gson gson = new Gson();
             for (int i = 0; i < 20; i++) {
-
                 contentValues.put(DBHelper.KEY_NAME, gson.toJson(adapter.getItem(i)));
                 contentValues.put(DBHelper.KEY_CHAT,gson.toJson(names.get(i)));
                 dataBase.insert(DBHelper.TABLE_DIALOGS, null, contentValues);
