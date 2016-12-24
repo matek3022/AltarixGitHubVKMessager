@@ -13,7 +13,7 @@ import com.example.vk_mess_demo_00001.R;
  * Created by matek on 19.11.2016.
  */
 
-public class FragmentPhoto extends Fragment {
+public class PhotoFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

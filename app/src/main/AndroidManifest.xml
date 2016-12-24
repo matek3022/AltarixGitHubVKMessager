@@ -3,7 +3,8 @@
     package="com.example.vk_mess_demo_00001">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/hzche"
@@ -12,7 +13,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".Activitys.LoginActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activitys.DialogsActivity"
             android:screenOrientation="portrait" />
@@ -34,13 +35,16 @@
             android:name=".Activitys.UserActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".Activitys.StartActivity">
+
+        </activity>
+        <activity android:name=".Activitys.UsersPhotoActivity" />
+        <activity android:name=".Activitys.FriendsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activitys.UsersPhotoActivity"></activity>
     </application>
 
 </manifest>

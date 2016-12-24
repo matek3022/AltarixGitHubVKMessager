@@ -121,21 +121,24 @@ public class DialogsActivity extends AppCompatActivity {
             }
         });
         Cursor cursor = dataBase.query(DBHelper.TABLE_DIALOGS, null, null, null, null, null, null);
+        Cursor cursor1 = dataBase.query(DBHelper.TABLE_USERS, null, null, null, null, null, null);
         if (cursor.moveToFirst()) {
+            cursor1.moveToFirst();
             adapter = new Adapter(this);
+            names = new ArrayList<>();
             Gson gson = new Gson();
-            int dialog = cursor.getColumnIndex(DBHelper.KEY_NAME);
-            int name = cursor.getColumnIndex(DBHelper.KEY_CHAT);
+            int dialog = cursor.getColumnIndex(DBHelper.KEY_OBJ);
+            int name = cursor1.getColumnIndex(DBHelper.KEY_OBJ);
             for (int i = 0; i < cursor.getCount(); i++) {
                 adapter.items.add(gson.fromJson(cursor.getString(dialog), item.class));
-                if (i == 0) {
-                    names = gson.fromJson(cursor.getString(name), new TypeToken<List<namesChat>>(){}.getType());
-                }
                 Log.i("motya", "" + adapter.getItem(i).getMessage().getTitle());
-                Log.i("motya", "" + names.size() + names.get(0).getFirst_name());
                 cursor.moveToNext();
             }
-            adapter.items.add(new item());
+            for (int i = 0; i < cursor1.getCount(); i++) {
+                names.add(gson.fromJson(cursor1.getString(name), namesChat.class));
+                Log.i("motya", "" + names.get(i).getFirst_name());
+                cursor1.moveToNext();
+            }
             listView.setAdapter(adapter);
             chek = false;
             adapter.notifyDataSetChanged();
@@ -144,6 +147,7 @@ public class DialogsActivity extends AppCompatActivity {
             refresh(off);
         }
         cursor.close();
+        cursor1.close();
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -164,21 +168,31 @@ public class DialogsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
+    protected void onStop() {
         if (adapter != null) {
             dataBase.delete(DBHelper.TABLE_DIALOGS, null, null);
+            dataBase.delete(DBHelper.TABLE_USERS,null,null);
             ContentValues contentValues = new ContentValues();
             Gson gson = new Gson();
             Log.i("motya", names.size() + " " + adapter.getCount());
-            for (int i = 0; i < adapter.getCount() - 1; i++) {
-                contentValues.put(DBHelper.KEY_NAME, gson.toJson(adapter.getItem(i)));
-                if (i == 0) {
-                    contentValues.put(DBHelper.KEY_CHAT, gson.toJson(names));
+
+            for (int i = 0; i < adapter.getCount(); i++) {
+                if (adapter.getItem(i).getMessage().getChat_id()==0){
+                    contentValues.put(DBHelper.KEY_ID_USER, adapter.getItem(i).getMessage().getUser_id());
+                }else{
+                    contentValues.put(DBHelper.KEY_ID_USER, adapter.getItem(i).getMessage().getChat_id()+2000000000);
                 }
+                contentValues.put(DBHelper.KEY_OBJ, gson.toJson(adapter.getItem(i)));
                 dataBase.insert(DBHelper.TABLE_DIALOGS, null, contentValues);
             }
+
+            for (int i = 0; i < names.size(); i++) {
+                contentValues.put(DBHelper.KEY_ID_USER, names.get(i).getUser_id());
+                contentValues.put(DBHelper.KEY_OBJ, gson.toJson(names.get(i)));
+                dataBase.insert(DBHelper.TABLE_USERS, null, contentValues);
+            }
         }
-        super.onPause();
+        super.onStop();
     }
 
     public void refresh(int offset) {
@@ -291,10 +305,6 @@ public class DialogsActivity extends AppCompatActivity {
         super.onStart();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
 
     public class Adapter extends BaseAdapter {
         ArrayList<item> items;
