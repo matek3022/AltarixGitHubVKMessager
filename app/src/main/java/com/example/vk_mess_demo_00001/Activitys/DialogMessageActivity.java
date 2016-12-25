@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.vk_mess_demo_00001.Transformation.CircularTransformation;
 import com.example.vk_mess_demo_00001.VKObjects.Attachment;
 import com.example.vk_mess_demo_00001.VKObjects.Dialogs;
 import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
@@ -325,15 +326,17 @@ public class DialogMessageActivity extends AppCompatActivity {
                 ((TextView) convertView.findViewById(R.id.textView3)).setText("");
                 for (int i = 0; i < names.size(); i++) {
                     if (mess.getUser_id() == names.get(i).getId()) {
+                        setTitle(names.get(i).getFirst_name() + " " + names.get(i).getLast_name());
+                        ((TextView) convertView.findViewById(R.id.textView3)).setText(names.get(i).getFirst_name() + " " + names.get(i).getLast_name());
                         if (names.get(i).getOnline() == 1) {
-                            ((TextView) convertView.findViewById(R.id.textView3)).setText(names.get(i).getFirst_name() + " " + names.get(i).getLast_name() + " (Online)");
+                            ((ImageView) convertView.findViewById(R.id.imageView6)).setVisibility(View.VISIBLE);
                         } else {
-                            ((TextView) convertView.findViewById(R.id.textView3)).setText(names.get(i).getFirst_name() + " " + names.get(i).getLast_name());
+                            ((ImageView) convertView.findViewById(R.id.imageView6)).setVisibility(View.INVISIBLE);
                         }
                         if (setting.getBoolean("photouserOn", true)) {
                             Picasso.with(context)
                                     .load(names.get(i).getPhoto_100())
-                                    .placeholder(R.drawable.whitephoto)
+                                    .transform(new CircularTransformation())
                                     .into((ImageView) convertView.findViewById(R.id.imageView));
                             convertView.findViewById(R.id.imageView).setOnClickListener(new View.OnClickListener() {
                                 @Override

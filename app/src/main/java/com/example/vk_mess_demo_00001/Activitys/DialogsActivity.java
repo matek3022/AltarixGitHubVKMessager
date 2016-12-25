@@ -8,9 +8,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -22,16 +27,17 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 import com.example.vk_mess_demo_00001.R;
 import com.example.vk_mess_demo_00001.SQLite.DBHelper;
+import com.example.vk_mess_demo_00001.Transformation.CircularTransformation;
 import com.example.vk_mess_demo_00001.VKObjects.Dialogs;
 import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
 import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
@@ -40,7 +46,6 @@ import com.example.vk_mess_demo_00001.VKObjects.item;
 import com.example.vk_mess_demo_00001.Utils.VKService;
 import com.example.vk_mess_demo_00001.Utils.namesChat;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -51,7 +56,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class DialogsActivity extends AppCompatActivity {
+public class DialogsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static MediaPlayer mediaPlayer;
     SwipeRefreshLayout refreshLayout;
     Adapter adapter;
@@ -73,6 +78,16 @@ public class DialogsActivity extends AppCompatActivity {
                 .build();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialogs);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
         setTitle(getString(R.string.dialogs));
         chek = true;
         ListView listView = (ListView) findViewById(R.id.listView);
@@ -276,23 +291,6 @@ public class DialogsActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.dialog_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.titleee:
-                //Toast.makeText(this, "sdjklhnfuise", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(DialogsActivity.this, SettingActivity.class);
-                startActivity(intent);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     public static String convertMonth(int num) {
         String[] months = {"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
@@ -356,24 +354,14 @@ public class DialogsActivity extends AppCompatActivity {
                     convertView = getLayoutInflater().inflate(R.layout.item_list, null);
                     if (dialog.getChat_id() == 0) {
                         if (nameme.getOnline() != 0) {
-                            Picasso.with(context)
-                                    .load(R.drawable.tochka)
-                                    .resize(30, 30)
-                                    .centerCrop()
-                                    .into((ImageView) convertView.findViewById(R.id.imageView5));
+                            ((ImageView) convertView.findViewById(R.id.imageView5)).setVisibility(View.VISIBLE);
                         } else {
-                            Picasso.with(context)
-                                    .load(R.drawable.white)
-                                    .resize(30, 30)
-                                    .centerCrop()
-                                    .into((ImageView) convertView.findViewById(R.id.imageView5));
+                            ((ImageView) convertView.findViewById(R.id.imageView5)).setVisibility(View.INVISIBLE);
                         }
                         if (setting.getBoolean("photouserOn", true)) {
                             Picasso.with(context)
                                     .load(nameme.getPhoto_100())
-                                    .placeholder(R.drawable.whitephoto)
-                                    .resize(150, 150)
-                                    .centerCrop()
+                                    .transform(new CircularTransformation())
                                     .into((ImageView) convertView.findViewById(R.id.imageView4));
                         }
                     } else {
@@ -381,26 +369,24 @@ public class DialogsActivity extends AppCompatActivity {
                             if (dialog.getPhoto_100() != null) {
                                 Picasso.with(context)
                                         .load(dialog.getPhoto_100())
-                                        .placeholder(R.drawable.whitephoto)
-                                        .resize(150, 150)
-                                        .centerCrop()
+                                        .transform(new CircularTransformation())
                                         .into((ImageView) convertView.findViewById(R.id.imageView4));
                             } else {
                                 Picasso.with(context)
                                         .load("https://vk.com/images/soviet_200.png")
-                                        .resize(150, 150)
-                                        .centerCrop()
+                                        .transform(new CircularTransformation())
                                         .into((ImageView) convertView.findViewById(R.id.imageView4));
                             }
                     }
                     if (item.getUnread() != 0) {
-
+                        ((RelativeLayout) convertView.findViewById(R.id.background)).setBackgroundResource(R.color.accent);
                         ((TextView) convertView.findViewById(R.id.textView9)).setText("" + item.getUnread());
                     } else {
+                        ((RelativeLayout) convertView.findViewById(R.id.background)).setBackgroundColor(Color.WHITE);
                         ((TextView) convertView.findViewById(R.id.textView9)).setBackgroundColor(Color.WHITE);
                     }
                     if (dialog.getRead_state() == 0) {
-                        ((TextView) convertView.findViewById(R.id.textView6)).setBackgroundColor(Color.rgb(236, 235, 235));
+                        ((TextView) convertView.findViewById(R.id.textView6)).setBackgroundResource(R.color.accent);
                     } else {
                         ((TextView) convertView.findViewById(R.id.textView6)).setBackgroundColor(Color.WHITE);
                     }
@@ -497,5 +483,59 @@ public class DialogsActivity extends AppCompatActivity {
             }
             return convertView;
         }
+    }
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.dialog_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.titleee:
+                refresh(0);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_dialogs) {
+            Intent intent = new Intent();
+            intent.setClass(DialogsActivity.this, DialogsActivity.class);
+            startActivity(intent);
+            DialogsActivity.this.finish();
+
+        } else if (id == R.id.nav_friends) {
+            Intent intent = new Intent();
+            intent.setClass(DialogsActivity.this, FriendsActivity.class);
+            startActivity(intent);
+            DialogsActivity.this.finish();
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent();
+            intent.setClass(DialogsActivity.this, SettingActivity.class);
+            startActivity(intent);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

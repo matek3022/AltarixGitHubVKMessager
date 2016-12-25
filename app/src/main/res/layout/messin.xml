@@ -13,10 +13,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/relativeLayout">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:id="@+id/imageView"/>
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
@@ -57,6 +53,23 @@
             android:layout_below="@+id/textView2"
             android:id="@+id/line">
         </LinearLayout>
+
+        <ImageView
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            app:srcCompat="@drawable/tochka"
+            android:id="@+id/imageView6"
+            android:layout_alignBottom="@+id/imageView"
+            android:layout_alignRight="@+id/imageView"
+            android:layout_alignEnd="@+id/imageView"/>
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/imageView"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
     </RelativeLayout>
 
 

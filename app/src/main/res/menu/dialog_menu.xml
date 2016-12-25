@@ -5,7 +5,7 @@
     <item
         android:title="SKHDFS"
         android:id="@+id/titleee"
-        android:icon="@drawable/settings"
+        android:icon="@drawable/reload"
         android:orderInCategory="139"
         app:showAsAction="always"
         />

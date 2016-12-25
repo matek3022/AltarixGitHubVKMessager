@@ -1,31 +1,38 @@
 package com.example.vk_mess_demo_00001.Activitys;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.vk_mess_demo_00001.Fragments.FriendListFragment;
 import com.example.vk_mess_demo_00001.R;
 import com.example.vk_mess_demo_00001.Utils.VKService;
-import com.example.vk_mess_demo_00001.Utils.namesChat;
 import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
 import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
 import com.example.vk_mess_demo_00001.VKObjects.User;
-import com.example.vk_mess_demo_00001.VKObjects.item;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -36,7 +43,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class FriendsActivity extends AppCompatActivity {
+public class FriendsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     ViewPager pager;
     PagerAdapter pagerAdapter;
@@ -52,6 +59,17 @@ public class FriendsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
+        setTitle("Friends");
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.vk.com/method/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -65,16 +83,6 @@ public class FriendsActivity extends AppCompatActivity {
             }
         });
         refresh(0);
-    }
-
-    @Override
-    protected void onDestroy() {
-        /* У ТЕБЯ НЕ УДАЛЯЮТСЯ ФРАГМЕНТЫ, УЗНАЙ КАК УДАЛИТЬ И ВОЗВРАЩАЙСЯ СЮДА ОБЯЗАТЕЛЬНО*/
-        /* У ТЕБЯ НЕ УДАЛЯЮТСЯ ФРАГМЕНТЫ, УЗНАЙ КАК УДАЛИТЬ И ВОЗВРАЩАЙСЯ СЮДА ОБЯЗАТЕЛЬНО*/
-        /* У ТЕБЯ НЕ УДАЛЯЮТСЯ ФРАГМЕНТЫ, УЗНАЙ КАК УДАЛИТЬ И ВОЗВРАЩАЙСЯ СЮДА ОБЯЗАТЕЛЬНО*/
-        /* У ТЕБЯ НЕ УДАЛЯЮТСЯ ФРАГМЕНТЫ, УЗНАЙ КАК УДАЛИТЬ И ВОЗВРАЩАЙСЯ СЮДА ОБЯЗАТЕЛЬНО*/
-        /* У ТЕБЯ НЕ УДАЛЯЮТСЯ ФРАГМЕНТЫ, УЗНАЙ КАК УДАЛИТЬ И ВОЗВРАЩАЙСЯ СЮДА ОБЯЗАТЕЛЬНО*/
-        super.onDestroy();
     }
 
     public void setAllFriendsCount(int cnt) {
@@ -124,10 +132,6 @@ public class FriendsActivity extends AppCompatActivity {
         });
     }
 
-    public ArrayList<User> getInfo() {
-        return info;
-    }
-
     private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 
         public MyFragmentPagerAdapter(FragmentManager fm) {
@@ -136,7 +140,7 @@ public class FriendsActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            Log.i("motya", new Gson().toJson(info));
+            //Log.i("motya", new Gson().toJson(info));
             return FriendListFragment.newInstance(position, new Gson().toJson(info));
         }
 
@@ -153,5 +157,65 @@ public class FriendsActivity extends AppCompatActivity {
                 return ONLINE_FRIENDS;
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_dialogs) {
+            Intent intent = new Intent();
+            intent.setClass(FriendsActivity.this, DialogsActivity.class);
+            startActivity(intent);
+            FriendsActivity.this.finish();
+
+        } else if (id == R.id.nav_friends) {
+            Intent intent = new Intent();
+            intent.setClass(FriendsActivity.this, FriendsActivity.class);
+            startActivity(intent);
+            FriendsActivity.this.finish();
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent();
+            intent.setClass(FriendsActivity.this, SettingActivity.class);
+            startActivity(intent);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

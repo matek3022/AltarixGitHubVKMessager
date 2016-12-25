@@ -7,13 +7,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.vk_mess_demo_00001.Activitys.DialogsActivity;
 import com.example.vk_mess_demo_00001.Activitys.FriendsActivity;
 import com.example.vk_mess_demo_00001.Activitys.UserActivity;
 import com.example.vk_mess_demo_00001.R;

@@ -14,9 +14,12 @@
         <activity
             android:name=".Activitys.LoginActivity"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".Activitys.DialogsActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".Activitys.DialogMessageActivity"
             android:screenOrientation="portrait"
@@ -30,20 +33,29 @@
             android:value="@integer/google_play_services_version" />
 
         <activity android:name=".Activitys.SettingActivity" />
-        <activity android:name=".Activitys.PhotoActivity" />
+
+        <activity
+            android:name=".Activitys.PhotoActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".Activitys.UserActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".Activitys.StartActivity">
 
-        </activity>
-        <activity android:name=".Activitys.UsersPhotoActivity" />
-        <activity android:name=".Activitys.FriendsActivity">
+        <activity android:name=".Activitys.StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".Activitys.UsersPhotoActivity" />
+
+        <activity
+            android:name=".Activitys.FriendsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 
