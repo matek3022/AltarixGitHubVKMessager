@@ -43,9 +43,11 @@ public class FriendsActivity extends AppCompatActivity {
     SwipeRefreshLayout refreshLayout;
     static final int PAGE_COUNT = 2;
     Retrofit retrofit;
+    public static int page = 1; //на какой странице мы сейчас
     public static ArrayList<User> info;
     public static String ALL_FRIENDS = "All friends";
     public static String ONLINE_FRIENDS = "Online";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,13 +77,15 @@ public class FriendsActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    public void setAllFriendsCount (int cnt){
-        ALL_FRIENDS="All friends"+" ("+cnt+")";
+    public void setAllFriendsCount(int cnt) {
+        ALL_FRIENDS = "All friends" + " (" + cnt + ")";
     }
-    public void setOnlineFriendsCount (int cnt){
-        ONLINE_FRIENDS="Online"+" ("+cnt+")";
+
+    public void setOnlineFriendsCount(int cnt) {
+        ONLINE_FRIENDS = "Online" + " (" + cnt + ")";
     }
-    private void refresh(int user_id){
+
+    private void refresh(int user_id) {
         refreshLayout.setRefreshing(true);
         VKService service = retrofit.create(VKService.class);
         final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
@@ -90,14 +94,18 @@ public class FriendsActivity extends AppCompatActivity {
 
         call.enqueue(new Callback<ServerResponse<ItemMess<ArrayList<User>>>>() {
             @Override
-            public void onResponse(Call<ServerResponse<ItemMess<ArrayList<User>>>> call,Response<ServerResponse<ItemMess<ArrayList<User>>>> response) {
+            public void onResponse(Call<ServerResponse<ItemMess<ArrayList<User>>>> call, Response<ServerResponse<ItemMess<ArrayList<User>>>> response) {
                 Log.wtf("motya", response.raw().toString());
                 ArrayList<User> l = response.body().getResponse().getitem();
-                info=l;
+                info = l;
+                if (pager!=null){
+                    page = pager.getCurrentItem();
+                }
                 pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
                 pager.setAdapter(pagerAdapter);
+                pager.setCurrentItem(page);
                 refreshLayout.setRefreshing(false);
-                Log.i("motya",info.get(0).getFirst_name());
+                Log.i("motya", info.get(0).getFirst_name());
             }
 
             @Override
@@ -115,9 +123,11 @@ public class FriendsActivity extends AppCompatActivity {
             }
         });
     }
-    public ArrayList<User> getInfo(){
+
+    public ArrayList<User> getInfo() {
         return info;
     }
+
     private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 
         public MyFragmentPagerAdapter(FragmentManager fm) {
@@ -126,8 +136,8 @@ public class FriendsActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            Log.i("motya",new Gson().toJson(info));
-            return FriendListFragment.newInstance(position,new Gson().toJson(info));
+            Log.i("motya", new Gson().toJson(info));
+            return FriendListFragment.newInstance(position, new Gson().toJson(info));
         }
 
         @Override
@@ -137,9 +147,9 @@ public class FriendsActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            if (position==0){
+            if (position == 0) {
                 return ALL_FRIENDS;
-            }else {
+            } else {
                 return ONLINE_FRIENDS;
             }
         }
