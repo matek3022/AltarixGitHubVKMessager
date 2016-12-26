@@ -1,6 +1,5 @@
 package com.example.vk_mess_demo_00001.Utils;
 
-import com.example.vk_mess_demo_00001.Utils.namesChat;
 import com.example.vk_mess_demo_00001.VKObjects.AttachmentType.photo_mess;
 import com.example.vk_mess_demo_00001.VKObjects.Dialogs;
 import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
@@ -41,10 +40,7 @@ public interface VKService {
                                      @Query("message") String message,
                                      @Query("chat_id") int chat_id,
                                      @Query("peer_id") int peer_id);
-    @GET("messages.getChatUsers?v=5.59")
-    Call<ServerResponse<ArrayList<namesChat>>> getChatUsers(@Query("access_token") String access_token,
-                                                            @Query("chat_id") int chat_id,
-                                                            @Query("fields") String fields);
+
     @GET("account.setOnline?v=5.59")
     Call<ServerResponse> setOnline (@Query("access_token") String access_token);
 

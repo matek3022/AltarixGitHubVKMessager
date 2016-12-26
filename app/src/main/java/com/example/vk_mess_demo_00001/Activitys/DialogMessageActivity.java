@@ -35,12 +35,14 @@ import com.example.vk_mess_demo_00001.VKObjects.User;
 import com.example.vk_mess_demo_00001.Utils.Util;
 import com.example.vk_mess_demo_00001.Utils.VKService;
 import com.example.vk_mess_demo_00001.VKObjects.video_iformation;
+import com.google.gson.Gson;
 import com.luseen.autolinklibrary.AutoLinkMode;
 import com.luseen.autolinklibrary.AutoLinkOnClickListener;
 import com.luseen.autolinklibrary.AutoLinkTextView;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 import com.squareup.picasso.Picasso;
+import com.stfalcon.frescoimageviewer.ImageViewer;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -217,7 +219,7 @@ public class DialogMessageActivity extends AppCompatActivity {
                 VKService service = retrofit.create(VKService.class);
                 final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
                 String TOKEN = Token.getString("token_string", "");
-                Call<ServerResponse<ArrayList<User>>> call1 = service.getUser(TOKEN, people_id, "photo_100,online");
+                Call<ServerResponse<ArrayList<User>>> call1 = service.getUser(TOKEN, people_id, "photo_100,photo_400_orig,photo_max_orig, online,city,country,education, universities, schools,bdate,contacts");
 
                 call1.enqueue(new Callback<ServerResponse<ArrayList<User>>>() {
                     @Override
@@ -337,19 +339,22 @@ public class DialogMessageActivity extends AppCompatActivity {
                         } else {
                             ((ImageView) convertView.findViewById(R.id.imageView6)).setVisibility(View.INVISIBLE);
                         }
+                        final User user = names.get(i);
+                        convertView.findViewById(R.id.imageView).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(DialogMessageActivity.this, UserActivity.class);
+                                intent.putExtra("userID", mess.getUser_id());
+                                intent.putExtra("userJson",new Gson().toJson(user));
+                                startActivity(intent);
+                            }
+                        });
                         if (setting.getBoolean("photouserOn", true)) {
                             Picasso.with(context)
                                     .load(names.get(i).getPhoto_100())
                                     .transform(new CircularTransformation())
                                     .into((ImageView) convertView.findViewById(R.id.imageView));
-                            convertView.findViewById(R.id.imageView).setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent intent = new Intent(DialogMessageActivity.this, UserActivity.class);
-                                    intent.putExtra("userID", mess.getUser_id());
-                                    startActivity(intent);
-                                }
-                            });
+
                         }
                         break;
                     }
@@ -449,9 +454,11 @@ public class DialogMessageActivity extends AppCompatActivity {
                             photochka.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    Intent intent = new Intent(DialogMessageActivity.this, PhotoActivity.class);
-                                    intent.putExtra("photo", finalphoto);
-                                    startActivity(intent);
+//                                    Intent intent = new Intent(DialogMessageActivity.this, PhotoActivity.class);
+//                                    intent.putExtra("photo", finalphoto);
+//                                    startActivity(intent);
+                                    new ImageViewer.Builder(DialogMessageActivity.this, new String[]{finalphoto} )
+                                            .show();
                                 }
                             });
                         }

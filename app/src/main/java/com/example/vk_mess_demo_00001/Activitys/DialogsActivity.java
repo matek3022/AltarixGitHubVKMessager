@@ -44,7 +44,6 @@ import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
 import com.example.vk_mess_demo_00001.VKObjects.User;
 import com.example.vk_mess_demo_00001.VKObjects.item;
 import com.example.vk_mess_demo_00001.Utils.VKService;
-import com.example.vk_mess_demo_00001.Utils.namesChat;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -62,7 +61,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
     Adapter adapter;
     String stroka = "";
     int off = 0;
-    ArrayList<namesChat> names;
+    ArrayList<User> names;
     boolean chek;
     Retrofit retrofit;
 
@@ -150,7 +149,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                 cursor.moveToNext();
             }
             for (int i = 0; i < cursor1.getCount(); i++) {
-                names.add(gson.fromJson(cursor1.getString(name), namesChat.class));
+                names.add(gson.fromJson(cursor1.getString(name), User.class));
                 Log.i("motya", "" + names.get(i).getFirst_name());
                 cursor1.moveToNext();
             }
@@ -204,7 +203,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
             }
 
             for (int i = 0; i < names.size(); i++) {
-                contentValues.put(DBHelper.KEY_ID_USER, names.get(i).getUser_id());
+                contentValues.put(DBHelper.KEY_ID_USER, names.get(i).getId());
                 contentValues.put(DBHelper.KEY_OBJ, gson.toJson(names.get(i)));
                 dataBase.insert(DBHelper.TABLE_USERS, null, contentValues);
             }
@@ -242,16 +241,13 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                 VKService service = retrofit.create(VKService.class);
                 Call<ServerResponse<ArrayList<User>>> call1 = service.getUser(TOKEN,
                         stroka,
-                        "photo_100, online");
+                        "photo_100, online, photo_400_orig,photo_max_orig,city,country,education, universities, schools, bdate, contacts");
                 call1.enqueue(new Callback<ServerResponse<ArrayList<User>>>() {
                     @Override
                     public void onResponse(Call<ServerResponse<ArrayList<User>>> call1, Response<ServerResponse<ArrayList<User>>> response) {
                         Log.wtf("motya", response.raw().toString());
                         ArrayList<User> l1 = response.body().getResponse();
-                        names = new ArrayList<namesChat>();
-                        for (int i = 0; i < l1.size(); i++) {
-                            names.add(new namesChat(l1.get(i).getId(), l1.get(i).getOnline(), l1.get(i).getFirst_name(), l1.get(i).getLast_name(), l1.get(i).getPhoto_100()));
-                        }
+                        names = l1;
                         ListView listView = (ListView) findViewById(R.id.listView);
                         listView.setAdapter(adapter);
                         adapter.notifyDataSetChanged();
@@ -343,10 +339,10 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
         public View getView(int position, View convertView, ViewGroup parent) {
             item item = getItem(position);
             final Dialogs dialog = item.getMessage();
-            namesChat nameme = new namesChat(0, 10, "", "", "");
+            User nameme = new User(0, 10, "", "", "");
             SharedPreferences setting = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
             for (int i = 0; i < names.size(); i++) {
-                if (dialog.getUser_id() == names.get(i).getUser_id()) {
+                if (dialog.getUser_id() == names.get(i).getId()) {
                     nameme = names.get(i);
                     break;
                 }
@@ -416,11 +412,13 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                     if (dialog.getChat_id() == 0) {
                         ((TextView) convertView.findViewById(R.id.textView)).setText(nameme.getFirst_name() + " " + nameme.getLast_name());
                         dialog.setTitle(nameme.getFirst_name() + " " + nameme.getLast_name());
+                        final User namememe = nameme;
                         convertView.findViewById(R.id.imageView4).setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 Intent intent = new Intent(DialogsActivity.this, UserActivity.class);
                                 intent.putExtra("userID", dialog.getUser_id());
+                                intent.putExtra("userJson",new Gson().toJson(namememe));
                                 startActivity(intent);
                             }
                         });

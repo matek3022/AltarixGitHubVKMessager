@@ -7,37 +7,20 @@ import android.os.Parcelable;
  * Created by Каракатица on 07.10.2016.
  */
 
-public class User  implements Parcelable {
+public class User  {
 
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(first_name);
-        dest.writeString(last_name);
-        dest.writeString(photo_200);
-        dest.writeString(photo_50);
-        dest.writeInt(online);
-        dest.writeInt(id);
-    }
-
-    public User(Parcel in) {
-        first_name = in.readString();
-        last_name = in.readString();
-        photo_200 = in.readString();
-        photo_50 = in.readString();
-        online = in.readInt();
-        id = in.readInt();
-    }
     public User (String fn,String ln, String ph, int on) {
         first_name=fn;
         last_name=ln;
         photo_200=ph;
         online=on;
+    }
+    public User (int us_id,int on,String fn,String ln, String ph){
+        id=us_id;
+        online=on;
+        first_name=fn;
+        last_name=ln;
+        photo_100=ph;
     }
     public User () {
         first_name="";
@@ -154,17 +137,7 @@ public class User  implements Parcelable {
         return country;
     }
 
-    public static Creator<User> CREATOR = new Creator<User>() {
-        @Override
-        public User createFromParcel(Parcel source) {
-            return new User(source);
-        }
 
-        @Override
-        public User[] newArray(int size) {
-            return new User[size];
-        }
-    };
     public  class city{
         private int id;
         private String title;

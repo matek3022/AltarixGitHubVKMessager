@@ -107,6 +107,7 @@ public class FriendListFragment extends Fragment {
                 public void onClick(View v) {
                     Intent intent = new Intent(getContext(), UserActivity.class);
                     intent.putExtra("userID", user.getId());
+                    intent.putExtra("userJson", new Gson().toJson(user));
                     startActivity(intent);
                 }
             });
