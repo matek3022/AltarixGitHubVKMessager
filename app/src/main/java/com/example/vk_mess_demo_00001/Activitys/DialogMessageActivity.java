@@ -75,6 +75,7 @@ public class DialogMessageActivity extends AppCompatActivity {
                 .build();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialog_message);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         user_id = getIntent().getIntExtra("userID", 0);
         chat_id = getIntent().getIntExtra("ChatID", 0);
         if (chat_id != 0) user_id = 2000000000 + chat_id;
@@ -275,6 +276,9 @@ public class DialogMessageActivity extends AppCompatActivity {
             case R.id.titleee:
                 off = 0;
                 refresh(off);
+                return true;
+            case android.R.id.home:
+                this.finish();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -666,6 +670,8 @@ public class DialogMessageActivity extends AppCompatActivity {
             }
             if (mess.getRead_state() == 0) {
                 convertView.setBackgroundColor(ContextCompat.getColor(context, R.color.accent));
+            }else {
+                convertView.setBackgroundColor(Color.WHITE);
             }
             year.setTimeZone(TimeZone.getTimeZone("GMT+4"));
             month.setTimeZone(TimeZone.getTimeZone("GMT+4"));

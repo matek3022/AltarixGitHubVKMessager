@@ -65,13 +65,13 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
     ArrayList<namesChat> names;
     boolean chek;
     Retrofit retrofit;
-    public static DBHelper dbHelper;
+
     SQLiteDatabase dataBase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        dbHelper = new DBHelper(this);
-        dataBase = dbHelper.getWritableDatabase();
+
+        dataBase = DBHelper.getInstance().getWritableDatabase();
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.vk.com/method/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -157,6 +157,8 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
             listView.setAdapter(adapter);
             chek = false;
             adapter.notifyDataSetChanged();
+            off = 0;
+            refresh(off);
         } else {
             off = 0;
             refresh(off);
@@ -386,7 +388,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                         ((TextView) convertView.findViewById(R.id.textView9)).setBackgroundColor(Color.WHITE);
                     }
                     if (dialog.getRead_state() == 0) {
-                        ((TextView) convertView.findViewById(R.id.textView6)).setBackgroundResource(R.color.accent);
+                        ((TextView) convertView.findViewById(R.id.textView6)).setBackgroundResource(R.drawable.circledialogs);
                     } else {
                         ((TextView) convertView.findViewById(R.id.textView6)).setBackgroundColor(Color.WHITE);
                     }

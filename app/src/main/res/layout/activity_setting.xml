@@ -11,46 +11,69 @@
     tools:context="com.example.vk_mess_demo_00001.Activitys.SettingActivity">
 
     <Switch
-        android:text="Отображать фото профилей"
+        android:id="@+id/switch1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/switch1"
-        android:switchTextAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:layout_alignParentTop="true"
+        android:switchTextAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:text="Отображать фото профилей"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textColorLink="?attr/colorPrimary" />
 
     <Switch
-        android:text="Отображать прекрепленные фото"
+        android:id="@+id/switch3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/switch3"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/switch1"
+        android:layout_alignEnd="@+id/switch1"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignRight="@+id/switch1"
-        android:layout_alignEnd="@+id/switch1" />
-
-    <Switch
-        android:text="Быть Online "
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/switch2"
+        android:layout_below="@+id/switch1"
         android:layout_marginTop="10dp"
         android:switchTextAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColorLink="?attr/colorPrimary"
-        android:layout_below="@+id/switch3"
+        android:text="Отображать прекрепленные фото"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+
+    <Switch
+        android:id="@+id/switch2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/switch3"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignRight="@+id/switch3"
-        android:layout_alignEnd="@+id/switch3" />
-    <Button
+        android:layout_below="@+id/switch3"
+        android:layout_marginTop="10dp"
+        android:switchTextAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:text="Быть Online "
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColorLink="?attr/colorPrimary" />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:id="@+id/button"
-        android:text="Log out"/>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:orientation="horizontal"
+        android:weightSum="5">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:gravity="center"
+            android:text="Чтобы выйти, нажмити кнопку"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="Out"
+            style="@android:style/Widget.Holo.Button" />
+    </LinearLayout>
 </RelativeLayout>

@@ -8,41 +8,48 @@
     android:layout_height="match_parent"
     tools:context="com.example.vk_mess_demo_00001.Activitys.UserActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_toRightOf="@+id/imageView2"
-        android:layout_toEndOf="@+id/imageView2"
-        android:layout_alignBottom="@+id/imageView2"
-        android:orientation="vertical"
-        android:id="@+id/lineRight"
-        >
-
-    </LinearLayout>
-
     <ImageView
-        android:layout_width="200dp"
+        android:id="@+id/imageView2"
+        android:layout_width="match_parent"
         android:layout_height="200dp"
-        app:srcCompat="@android:color/white"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/imageView2" />
+        android:layout_alignParentTop="true" />
+
     <LinearLayout
+        android:id="@+id/lineBottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/imageView2"
-        android:layout_above="@+id/button5"
         android:orientation="vertical"
-        android:id="@+id/lineBottom">
+        android:padding="5dp">
 
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/button5"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/circle"
+                android:layout_alignParentBottom="true"
+                android:text="Send message" />
+
+            <Button
+                android:id="@+id/button6"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/circle"
+                android:layout_alignParentBottom="true"
+                android:text="Friend list" />
+        </LinearLayout>
     </LinearLayout>
-
-    <Button
-        android:text="Send message"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:id="@+id/button5" />
 
 </RelativeLayout>

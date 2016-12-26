@@ -14,7 +14,19 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_ID_USER = "id";
     public static final String KEY_OBJ = "json";
 
-    public DBHelper(Context context) {
+    private static DBHelper instance;
+
+    public static void init(Context context){
+        if(instance == null) {
+            instance = new DBHelper(context);
+        }
+    }
+
+    public static DBHelper getInstance(){
+        return instance;
+    }
+
+    private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

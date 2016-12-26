@@ -1,6 +1,7 @@
 package com.example.vk_mess_demo_00001.Utils;
 
 import com.example.vk_mess_demo_00001.Utils.namesChat;
+import com.example.vk_mess_demo_00001.VKObjects.AttachmentType.photo_mess;
 import com.example.vk_mess_demo_00001.VKObjects.Dialogs;
 import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
 import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
@@ -24,7 +25,7 @@ public interface VKService {
     Call<ServerResponse<ArrayList<User>>> getUser(@Query("access_token") String access_token,
                                                   @Query("user_ids") String user_ids,
                                                   @Query("fields") String fields);
-    @GET("messages.getDialogs?v=5.57&preview_length=50")
+    @GET("messages.getDialogs?v=5.57&preview_length=20")
     Call<ServerResponse<ItemMess<ArrayList<item>>>> getDialogs (@Query("access_token") String access_token,
                                                                 @Query("count") int count,
                                                                 @Query("offset") int offset);
@@ -54,4 +55,7 @@ public interface VKService {
     Call<ServerResponse<ItemMess<ArrayList<User>>>> getFriends (@Query("access_token") String access_token,
                                                                 @Query("user_id") int user_id,
                                                                 @Query("fields") String fields);
+    @GET ("photos.get?&v=5.60&count=1000&album_id=profile&rev=1")
+    Call<ServerResponse<ItemMess<ArrayList<photo_mess>>>> getPhotos (@Query("access_token") String access_token,
+                                                                        @Query("owner_id") int owner_id);
 }

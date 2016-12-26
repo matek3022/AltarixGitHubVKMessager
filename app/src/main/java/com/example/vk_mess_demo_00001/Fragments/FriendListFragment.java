@@ -108,7 +108,6 @@ public class FriendListFragment extends Fragment {
                     Intent intent = new Intent(getContext(), UserActivity.class);
                     intent.putExtra("userID", user.getId());
                     startActivity(intent);
-                    getActivity().finish();
                 }
             });
 

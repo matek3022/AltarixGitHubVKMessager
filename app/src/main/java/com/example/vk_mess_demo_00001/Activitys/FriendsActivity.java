@@ -60,6 +60,7 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
         setTitle("Friends");
+        final int user_id = getIntent().getIntExtra("userID", 0);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -79,10 +80,10 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refresh(0);
+                refresh(user_id);
             }
         });
-        refresh(0);
+        refresh(user_id);
     }
 
     public void setAllFriendsCount(int cnt) {

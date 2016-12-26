@@ -14,7 +14,7 @@
         android:id="@+id/refresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        android:background="@android:color/white"
         app:srl_direction="both"
         android:layout_above="@+id/button"
         tools:context="com.shppandroid1.app.Main2Activity">
@@ -24,6 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:alwaysDrawnWithCache="false"
+            android:background="@android:color/white"
             android:divider="@null"
             android:stackFromBottom="true" />
     </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
