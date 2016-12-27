@@ -4,32 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="5dp"
-    android:background="@color/primary">
+    android:background="@android:color/white">
 
     <RelativeLayout
         android:id="@+id/background"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
+        android:padding="16dp"
         android:background="@android:color/white">
 
         <ImageView
             android:id="@+id/imageView4"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_margin="1dp"
-            android:maxHeight="50dp"
-            android:maxWidth="50dp" />
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="1dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginLeft="5dp"
             android:layout_toEndOf="@+id/imageView4"
             android:layout_toRightOf="@+id/imageView4"
             android:text="Chek internet connection"
@@ -38,6 +35,8 @@
         <TextView
             android:id="@+id/textView6"
             android:padding="2dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginLeft="5dp"
             android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -81,10 +80,10 @@
             android:id="@+id/imageView5"
             android:layout_width="10dp"
             android:layout_height="10dp"
+            app:srcCompat="@drawable/tochka"
             android:layout_alignBottom="@+id/imageView4"
-            android:layout_toLeftOf="@+id/textView6"
-            android:layout_toStartOf="@+id/textView6"
-            app:srcCompat="@drawable/tochka" />
+            android:layout_alignEnd="@+id/imageView4"
+            android:layout_alignRight="@+id/imageView4"/>
     </RelativeLayout>
 
 </RelativeLayout>
