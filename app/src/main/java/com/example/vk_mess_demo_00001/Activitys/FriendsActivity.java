@@ -42,14 +42,14 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
+import static com.example.vk_mess_demo_00001.App.service;
 public class FriendsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     ViewPager pager;
     PagerAdapter pagerAdapter;
     SwipeRefreshLayout refreshLayout;
     static final int PAGE_COUNT = 2;
-    Retrofit retrofit;
+//    Retrofit retrofit;
     public static int page = 1; //на какой странице мы сейчас
     public static ArrayList<User> info;
     public static String ALL_FRIENDS = "All friends";
@@ -71,10 +71,10 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.vk.com/method/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+//        retrofit = new Retrofit.Builder()
+//                .baseUrl("https://api.vk.com/method/")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
         pager = (ViewPager) findViewById(R.id.pager);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -96,7 +96,7 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
     private void refresh(int user_id) {
         refreshLayout.setRefreshing(true);
-        VKService service = retrofit.create(VKService.class);
+//        VKService service = retrofit.create(VKService.class);
         final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
         String TOKEN = Token.getString("token_string", "");
         Call<ServerResponse<ItemMess<ArrayList<User>>>> call = service.getFriends(TOKEN, user_id, "online, photo_200, city");

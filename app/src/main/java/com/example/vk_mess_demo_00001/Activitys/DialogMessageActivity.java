@@ -55,6 +55,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.example.vk_mess_demo_00001.App.service;
+
 public class DialogMessageActivity extends AppCompatActivity {
 
     private int user_id;
@@ -66,15 +68,15 @@ public class DialogMessageActivity extends AppCompatActivity {
     ListView listView;
     SwipyRefreshLayout refreshLayout;
     int off;
-    Retrofit retrofit;
+//    Retrofit retrofit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.vk.com/method/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+//        retrofit = new Retrofit.Builder()
+//                .baseUrl("https://api.vk.com/method/")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialog_message);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -110,12 +112,12 @@ public class DialogMessageActivity extends AppCompatActivity {
                 if (!mess.getText().toString().equals("")) {
                     String message = mess.getText().toString();
                     mess.setText("");
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("https://api.vk.com/method/")
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .build();
+//                    Retrofit retrofit = new Retrofit.Builder()
+//                            .baseUrl("https://api.vk.com/method/")
+//                            .addConverterFactory(GsonConverterFactory.create())
+//                            .build();
 
-                    VKService service = retrofit.create(VKService.class);
+//                    VKService service = retrofit.create(VKService.class);
                     int kek = user_id;
                     if (chat_id != 0) {
                         kek = 0;
@@ -189,7 +191,7 @@ public class DialogMessageActivity extends AppCompatActivity {
         refreshLayout.setRefreshing(true);
         adapter = new Adapter(this);
         names = new ArrayList<User>();
-        VKService service = retrofit.create(VKService.class);
+//        VKService service = retrofit.create(VKService.class);
 
         final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
         String TOKEN = Token.getString("token_string", "");
@@ -216,7 +218,7 @@ public class DialogMessageActivity extends AppCompatActivity {
 
 
                 //if (chat_id!=0){
-                VKService service = retrofit.create(VKService.class);
+//                VKService service = retrofit.create(VKService.class);
                 final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
                 String TOKEN = Token.getString("token_string", "");
                 Call<ServerResponse<ArrayList<User>>> call1 = service.getUser(TOKEN, people_id, "photo_100,photo_400_orig,photo_max_orig, online,city,country,education, universities, schools,bdate,contacts");
@@ -499,7 +501,7 @@ public class DialogMessageActivity extends AppCompatActivity {
                         photochka.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                VKService service = retrofit.create(VKService.class);
+//                                VKService service = retrofit.create(VKService.class);
                                 Toast toast = Toast.makeText(getApplicationContext(),
                                         "Loading...", Toast.LENGTH_LONG);
                                 toast.show();

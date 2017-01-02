@@ -2,16 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_marginBottom="5dp"
+    android:orientation="vertical"
     android:background="@android:color/white">
 
     <RelativeLayout
         android:id="@+id/background"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="@android:color/white">
+        android:background="@android:color/white"
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/imageView4"
@@ -24,9 +25,9 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:layout_marginStart="5dp"
             android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="1dp"
             android:layout_toEndOf="@+id/imageView4"
             android:layout_toRightOf="@+id/imageView4"
             android:text="Chek internet connection"
@@ -34,17 +35,17 @@
 
         <TextView
             android:id="@+id/textView6"
-            android:padding="2dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginLeft="5dp"
-            android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/imageView4"
             android:layout_below="@+id/textView"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="1dp"
             android:layout_toEndOf="@+id/imageView4"
             android:layout_toRightOf="@+id/imageView4"
+            android:gravity="center"
+            android:padding="2dp"
             android:text="Message" />
 
         <TextView
@@ -60,30 +61,31 @@
             android:text="TextView"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-        <RelativeLayout
-            android:id="@+id/relativeLayout"
+        <TextView
+            android:id="@+id/textView9"
+            android:padding="4dp"
+            android:gravity="center"
+            android:textColor="@color/accent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/textView8"
             android:layout_alignRight="@+id/textView8"
             android:layout_below="@+id/textView8"
-            android:background="@drawable/circleiterationdialogs">
-
-            <TextView
-                android:id="@+id/textView9"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Button" />
-        </RelativeLayout>
+            android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
         <ImageView
             android:id="@+id/imageView5"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            app:srcCompat="@drawable/tochka"
             android:layout_alignBottom="@+id/imageView4"
             android:layout_alignEnd="@+id/imageView4"
-            android:layout_alignRight="@+id/imageView4"/>
-    </RelativeLayout>
+            android:layout_alignRight="@+id/imageView4"
+            app:srcCompat="@drawable/tochka" />
 
+    </RelativeLayout>
+    <View
+        android:layout_below="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@drawable/shape_line"/>
 </RelativeLayout>

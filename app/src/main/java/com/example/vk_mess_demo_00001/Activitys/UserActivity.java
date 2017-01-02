@@ -33,13 +33,15 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class UserActivity extends AppCompatActivity {
-    final public static Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("https://api.vk.com/method/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
+import static com.example.vk_mess_demo_00001.App.service;
 
-    final public static VKService service = retrofit.create(VKService.class);
+public class UserActivity extends AppCompatActivity {
+//    final public static Retrofit retrofit = new Retrofit.Builder()
+//            .baseUrl("https://api.vk.com/method/")
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build();
+//
+//    final public static VKService service = retrofit.create(VKService.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
