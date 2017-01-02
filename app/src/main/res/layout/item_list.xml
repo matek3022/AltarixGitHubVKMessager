@@ -87,5 +87,7 @@
         android:layout_below="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="2dp"
+        android:layout_marginLeft="84dp"
+        android:layout_marginStart="84dp"
         android:background="@drawable/shape_line"/>
 </RelativeLayout>

@@ -1,8 +1,11 @@
 package com.example.vk_mess_demo_00001.Activitys;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -25,15 +28,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vk_mess_demo_00001.Fragments.FriendListFragment;
 import com.example.vk_mess_demo_00001.R;
+import com.example.vk_mess_demo_00001.SQLite.DBHelper;
+import com.example.vk_mess_demo_00001.Transformation.CircularTransformation;
 import com.example.vk_mess_demo_00001.Utils.VKService;
 import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
 import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
 import com.example.vk_mess_demo_00001.VKObjects.User;
+import com.example.vk_mess_demo_00001.VKObjects.item;
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -42,25 +50,31 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
 import static com.example.vk_mess_demo_00001.App.service;
-public class FriendsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+
+public class FriendsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     ViewPager pager;
     PagerAdapter pagerAdapter;
     SwipeRefreshLayout refreshLayout;
     static final int PAGE_COUNT = 2;
-//    Retrofit retrofit;
+    //    Retrofit retrofit;
     public static int page = 1; //на какой странице мы сейчас
     public static ArrayList<User> info;
     public static String ALL_FRIENDS = "All friends";
     public static String ONLINE_FRIENDS = "Online";
+    SQLiteDatabase dataBase;
+    int user_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        dataBase = DBHelper.getInstance().getWritableDatabase();
+        user_id = getIntent().getIntExtra("userID", 0);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
         setTitle("Friends");
-        final int user_id = getIntent().getIntExtra("userID", 0);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -71,10 +85,35 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-//        retrofit = new Retrofit.Builder()
-//                .baseUrl("https://api.vk.com/method/")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
+        final SharedPreferences SPuser = getSharedPreferences("uidgson", Context.MODE_PRIVATE);
+        final String uidgson = SPuser.getString("uidgson_string", "");
+        if (uidgson!="") {
+            final User iuser = new Gson().fromJson(uidgson, User.class);
+            Picasso.with(FriendsActivity.this)
+                    .load(iuser.getPhoto_100())
+                    .transform(new CircularTransformation())
+                    .into((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView20));
+            ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView20)).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(FriendsActivity.this, UserActivity.class);
+                    intent.putExtra("userID", iuser.getId());
+                    intent.putExtra("userJson", uidgson);
+                    startActivity(intent);
+                }
+            });
+            if (iuser.getOnline()==1){
+                ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView21)).setVisibility(View.VISIBLE);
+            }else {
+                ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView21)).setVisibility(View.INVISIBLE);
+            }
+            ((TextView) navigationView.getHeaderView(0).findViewById(R.id.textView20)).setText(iuser.getFirst_name()+" "+iuser.getLast_name());
+            if (iuser.getCity() != (null)) {
+                ((TextView) navigationView.getHeaderView(0).findViewById(R.id.textView21)).setText(iuser.getCity().getTitle());
+            } else {
+                ((TextView) navigationView.getHeaderView(0).findViewById(R.id.textView21)).setText("");
+            }
+        }
         pager = (ViewPager) findViewById(R.id.pager);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -83,7 +122,43 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
                 refresh(user_id);
             }
         });
-        refresh(user_id);
+        if (user_id==0) {
+            Cursor cursor = dataBase.query(DBHelper.TABLE_FRIENDS, null, null, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                info = new ArrayList<>();
+                Gson gson = new Gson();
+                int user = cursor.getColumnIndex(DBHelper.KEY_OBJ);
+                for (int i = 0; i < cursor.getCount(); i++) {
+                    info.add(gson.fromJson(cursor.getString(user), User.class));
+                    cursor.moveToNext();
+                }
+                pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
+                pager.setAdapter(pagerAdapter);
+
+                refresh(user_id);
+            } else {
+                refresh(user_id);
+            }
+            cursor.close();
+        }else {
+            refresh(user_id);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        if (user_id==0) {
+            dataBase.delete(DBHelper.TABLE_FRIENDS, null, null);
+            ContentValues contentValues = new ContentValues();
+            Gson gson = new Gson();
+
+            for (int i = 0; i < info.size(); i++) {
+                contentValues.put(DBHelper.KEY_ID_USER, info.get(i).getId());
+                contentValues.put(DBHelper.KEY_OBJ, gson.toJson(info.get(i)));
+                dataBase.insert(DBHelper.TABLE_FRIENDS, null, contentValues);
+            }
+        }
+        super.onStop();
     }
 
     public void setAllFriendsCount(int cnt) {
@@ -96,7 +171,6 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
     private void refresh(int user_id) {
         refreshLayout.setRefreshing(true);
-//        VKService service = retrofit.create(VKService.class);
         final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
         String TOKEN = Token.getString("token_string", "");
         Call<ServerResponse<ItemMess<ArrayList<User>>>> call = service.getFriends(TOKEN, user_id, "online, photo_200, city");
@@ -107,7 +181,7 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
                 Log.wtf("motya", response.raw().toString());
                 ArrayList<User> l = response.body().getResponse().getitem();
                 info = l;
-                if (pager!=null){
+                if (pager != null) {
                     page = pager.getCurrentItem();
                 }
                 pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());

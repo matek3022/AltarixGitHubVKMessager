@@ -5,11 +5,16 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.vk_mess_demo_00001.Activitys.FriendsActivity;
@@ -57,7 +62,7 @@ public class FriendListFragment extends Fragment {
             }
             users = onlineUsers;
             ((FriendsActivity) getActivity()).setOnlineFriendsCount(users.size());
-        }else {
+        } else {
             ((FriendsActivity) getActivity()).setAllFriendsCount(users.size());
         }
     }
@@ -68,11 +73,51 @@ public class FriendListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_list_friend, null);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.list);
-        Adapter adapter = new Adapter();
+        final Adapter adapter = new Adapter();
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(adapter);
+        if (pageNumber == 0) {
+            LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.container);
+            EditText editText = new EditText(getContext());
+            editText.setHint("Filter");
+            linearLayout.addView(editText);
+            final ArrayList<User> usersFinal = new ArrayList<>();
+            for (int i=0 ; i<users.size();i++){
+                usersFinal.add(users.get(i));
+            }
+            editText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if (!s.equals("")) {
+                        users.clear();
+                        for (int i = 0; i < usersFinal.size(); i++) {
+                            String name = usersFinal.get(i).getFirst_name() + " " + usersFinal.get(i).getLast_name();
+                            if (name.contains(s)) {
+                                users.add(usersFinal.get(i));
+                            }
+                        }
+                    }else {
+                        users.clear();
+                        for (int i=0 ; i<usersFinal.size();i++){
+                            users.add(usersFinal.get(i));
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        }
         return view;
     }
 
@@ -113,9 +158,9 @@ public class FriendListFragment extends Fragment {
             });
 
             holder.name.setText(user.getFirst_name() + " " + user.getLast_name());
-            if (user.getCity()!=(null)) {
+            if (user.getCity() != (null)) {
                 holder.someInformation.setText(user.getCity().getTitle());
-            }else {
+            } else {
                 holder.someInformation.setText("");
             }
             if (user.getPhoto_200().equals("")) {
@@ -124,7 +169,7 @@ public class FriendListFragment extends Fragment {
                         .transform(new CircularTransformation())
                         .into(holder.photo);
             } else {
-                Log.i("photo",user.getPhoto_200());
+                Log.i("photo", user.getPhoto_200());
                 Picasso.with(getContext())
                         .load(user.getPhoto_200())
                         .transform(new CircularTransformation())
@@ -132,7 +177,7 @@ public class FriendListFragment extends Fragment {
             }
             if (user.getOnline() == 1) {
                 holder.online.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 holder.online.setVisibility(View.INVISIBLE);
             }
         }

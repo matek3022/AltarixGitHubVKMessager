@@ -63,9 +63,15 @@ public class LoginActivity extends AppCompatActivity {
         String token = extract(url, "access_token=(.*?)&");
         int uid = Integer.parseInt(extract(url, "user_id=(\\d*)"));
         final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
+        final SharedPreferences Uid = getSharedPreferences("uid", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = Token.edit();
         editor.putString("token_string",token);
         editor.apply();
+
+        editor = Uid.edit();
+        editor.putInt("uid_int",uid);
+        editor.apply();
+
         goNext();
     }
 

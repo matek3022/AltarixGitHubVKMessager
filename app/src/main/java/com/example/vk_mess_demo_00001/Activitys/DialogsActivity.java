@@ -92,6 +92,37 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        final SharedPreferences SPuser = getSharedPreferences("uidgson", Context.MODE_PRIVATE);
+        final String uidgson = SPuser.getString("uidgson_string", "");
+        if (uidgson!="") {
+            final User iuser = new Gson().fromJson(uidgson, User.class);
+            Picasso.with(DialogsActivity.this)
+                    .load(iuser.getPhoto_100())
+                    .transform(new CircularTransformation())
+                    .into((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView20));
+            ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView20)).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(DialogsActivity.this, UserActivity.class);
+                    intent.putExtra("userID", iuser.getId());
+                    intent.putExtra("userJson", uidgson);
+                    startActivity(intent);
+                }
+            });
+            if (iuser.getOnline()==1){
+                ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView21)).setVisibility(View.VISIBLE);
+            }else {
+                ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView21)).setVisibility(View.INVISIBLE);
+            }
+            ((TextView) navigationView.getHeaderView(0).findViewById(R.id.textView20)).setText(iuser.getFirst_name()+" "+iuser.getLast_name());
+            if (iuser.getCity() != (null)) {
+                ((TextView) navigationView.getHeaderView(0).findViewById(R.id.textView21)).setText(iuser.getCity().getTitle());
+            } else {
+                ((TextView) navigationView.getHeaderView(0).findViewById(R.id.textView21)).setText("");
+            }
+        }
+
         setTitle(getString(R.string.dialogs));
         final SharedPreferences setting = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -147,7 +178,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                 Log.i("motya", "" + names.get(i).getFirst_name());
                 cursor1.moveToNext();
             }
-            off = (items.size()/20-1)*20;
+            off = (items.size() / 20 - 1) * 20;
             refresh(off);
         } else {
             off = 0;
@@ -159,27 +190,25 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
 
     @Override
     protected void onStop() {
-        if (adapter != null) {
-            dataBase.delete(DBHelper.TABLE_DIALOGS, null, null);
-            dataBase.delete(DBHelper.TABLE_USERS,null,null);
-            ContentValues contentValues = new ContentValues();
-            Gson gson = new Gson();
+        dataBase.delete(DBHelper.TABLE_DIALOGS, null, null);
+        dataBase.delete(DBHelper.TABLE_USERS, null, null);
+        ContentValues contentValues = new ContentValues();
+        Gson gson = new Gson();
 
-            for (int i = 0; i < items.size(); i++) {
-                if (items.get(i).getMessage().getChat_id()==0){
-                    contentValues.put(DBHelper.KEY_ID_USER, items.get(i).getMessage().getUser_id());
-                }else{
-                    contentValues.put(DBHelper.KEY_ID_USER, items.get(i).getMessage().getChat_id()+2000000000);
-                }
-                contentValues.put(DBHelper.KEY_OBJ, gson.toJson(items.get(i)));
-                dataBase.insert(DBHelper.TABLE_DIALOGS, null, contentValues);
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getMessage().getChat_id() == 0) {
+                contentValues.put(DBHelper.KEY_ID_USER, items.get(i).getMessage().getUser_id());
+            } else {
+                contentValues.put(DBHelper.KEY_ID_USER, items.get(i).getMessage().getChat_id() + 2000000000);
             }
+            contentValues.put(DBHelper.KEY_OBJ, gson.toJson(items.get(i)));
+            dataBase.insert(DBHelper.TABLE_DIALOGS, null, contentValues);
+        }
 
-            for (int i = 0; i < names.size(); i++) {
-                contentValues.put(DBHelper.KEY_ID_USER, names.get(i).getId());
-                contentValues.put(DBHelper.KEY_OBJ, gson.toJson(names.get(i)));
-                dataBase.insert(DBHelper.TABLE_USERS, null, contentValues);
-            }
+        for (int i = 0; i < names.size(); i++) {
+            contentValues.put(DBHelper.KEY_ID_USER, names.get(i).getId());
+            contentValues.put(DBHelper.KEY_OBJ, gson.toJson(names.get(i)));
+            dataBase.insert(DBHelper.TABLE_USERS, null, contentValues);
         }
         super.onStop();
     }
@@ -207,6 +236,10 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                         stroka += "," + l.get(i).getMessage().getUser_id();
                     }
                 }
+                final SharedPreferences Uid = getSharedPreferences("uid",Context.MODE_PRIVATE);
+                final int UID = Uid.getInt("uid_int",0);
+
+                stroka+=","+UID;
                 final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
                 String TOKEN = Token.getString("token_string", "");
                 Call<ServerResponse<ArrayList<User>>> call1 = service.getUser(TOKEN,
@@ -221,10 +254,16 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                             names.clear();
                         }
                         for (int i = 0; i < l1.size(); i++) {
+                            if (l1.get(i).getId()==UID){
+                                final SharedPreferences Uid_gson = getSharedPreferences("uidgson", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = Uid_gson.edit();
+                                editor.putString("uidgson_string",new Gson().toJson(l1.get(i)));
+                                editor.apply();
+                            }
                             names.add(l1.get(i));
                         }
                         adapter.notifyDataSetChanged();
-                        off=offset;
+                        off = offset;
                         refreshLayout.setRefreshing(false);
                     }
 
@@ -445,7 +484,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                 } else {
                     if (!dialog.getFwd_messages().isEmpty()) {
                         holder.body.setText("'Пересланые сообщения'");
-                    }else {
+                    } else {
                         holder.body.setText(dialog.getBody());
                     }
                 }
@@ -454,9 +493,9 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                     holder.body.setText("Вы: " + "'" + dialog.getAttachments().get(0).getType() + "'");
                 } else {
                     if (!dialog.getFwd_messages().isEmpty()) {
-                        holder.body.setText("Вы: " +"'Пересланые сообщения'");
-                    }else {
-                        holder.body.setText("Вы: " +dialog.getBody());
+                        holder.body.setText("Вы: " + "'Пересланые сообщения'");
+                    } else {
+                        holder.body.setText("Вы: " + dialog.getBody());
                     }
                 }
             }
@@ -498,7 +537,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
             }
             if (position == off + 19) {
 
-                refresh(off+20);
+                refresh(off + 20);
             }
         }
 
