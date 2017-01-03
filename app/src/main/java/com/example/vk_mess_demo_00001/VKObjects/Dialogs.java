@@ -57,6 +57,7 @@ public class Dialogs implements Parcelable {
     private long date;
     private int out;
     private int user_id;
+    private int from_id;
     private int read_state;
     private ArrayList<Dialogs> fwd_messages;
     private String title;
@@ -67,6 +68,9 @@ public class Dialogs implements Parcelable {
     private int chat_id;
     private ArrayList<Attachment> attachments;
 
+    public int getFrom_id() {
+        return from_id;
+    }
 
     public int[] getChat_active() {
         return chat_active;

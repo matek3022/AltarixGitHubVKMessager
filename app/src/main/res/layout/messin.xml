@@ -1,76 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    >
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <RelativeLayout
-        android:background="@drawable/circle"
-        android:padding="6dp"
-        android:layout_margin="6dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/relativeLayout">
+        android:id="@+id/foo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/textView"
+        <RelativeLayout
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/imageView"
-            android:layout_toEndOf="@+id/imageView"
-            android:text="TextView"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+            android:layout_margin="6dp">
 
-        <com.luseen.autolinklibrary.AutoLinkTextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textView"
-            android:layout_alignStart="@+id/textView"
-            android:layout_toRightOf="@+id/imageView"
-            android:layout_toEndOf="@+id/imageView"
-            android:layout_below="@+id/textView"
-            android:text="TextView"
-            android:textColorLink="?attr/actionMenuTextColor" />
+            <RelativeLayout
+                android:id="@+id/relativeLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/imageView"
+                android:layout_toRightOf="@+id/imageView"
+                android:background="@drawable/circle"
+                android:padding="6dp">
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_marginLeft="1dp"
-            android:layout_marginStart="1dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/textView"
-            android:layout_toRightOf="@+id/textView"
-            android:text="TextView"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/imageView"
-            android:layout_toEndOf="@+id/imageView"
-            android:layout_below="@+id/textView2"
-            android:id="@+id/line">
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/textView2"
+                    android:layout_alignStart="@+id/textView2"
+                    android:layout_below="@+id/line"
+                    android:text="TextView" />
 
-        <ImageView
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            app:srcCompat="@drawable/tochka"
-            android:id="@+id/imageView6"
-            android:layout_alignBottom="@+id/imageView"
-            android:layout_alignRight="@+id/imageView"
-            android:layout_alignEnd="@+id/imageView"/>
+                <com.luseen.autolinklibrary.AutoLinkTextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TextView"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                    android:textColorLink="?attr/actionMenuTextColor" />
 
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/imageView"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+                <LinearLayout
+                    android:id="@+id/line"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/textView2"
+                    android:orientation="vertical">
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_alignBottom="@+id/imageView"
+                android:layout_alignEnd="@+id/imageView"
+                android:layout_alignRight="@+id/imageView"
+                app:srcCompat="@drawable/tochka" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp" />
+        </RelativeLayout>
     </RelativeLayout>
-
 
 </RelativeLayout>

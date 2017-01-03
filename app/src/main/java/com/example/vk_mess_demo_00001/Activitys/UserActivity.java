@@ -186,6 +186,7 @@ public class UserActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(UserActivity.this, DialogMessageActivity.class);
                 intent.putExtra("userID", user_id);
+                intent.putExtra("userName", user.getFirst_name() + " " + user.getLast_name());
                 startActivity(intent);
             }
         });

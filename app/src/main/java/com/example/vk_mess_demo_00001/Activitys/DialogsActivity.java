@@ -262,6 +262,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                             }
                             names.add(l1.get(i));
                         }
+
                         adapter.notifyDataSetChanged();
                         off = offset;
                         refreshLayout.setRefreshing(false);
@@ -407,17 +408,18 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                     break;
                 }
             }
+            final User userFinal = user;
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(DialogsActivity.this, DialogMessageActivity.class);
                     intent.putExtra("userID", dialog.getUser_id());
                     intent.putExtra("Title", dialog.getTitle());
+                    intent.putExtra("userName", userFinal.getFirst_name() + " " + userFinal.getLast_name());
                     intent.putExtra("ChatID", dialog.getChat_id());
                     startActivity(intent);
                 }
             });
-            final User userFinal = user;
             holder.photo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

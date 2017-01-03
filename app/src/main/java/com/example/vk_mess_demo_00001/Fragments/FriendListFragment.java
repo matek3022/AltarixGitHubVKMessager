@@ -82,6 +82,7 @@ public class FriendListFragment extends Fragment {
             LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.container);
             EditText editText = new EditText(getContext());
             editText.setHint("Filter");
+            editText.setTag("newEditText");
             linearLayout.addView(editText);
             final ArrayList<User> usersFinal = new ArrayList<>();
             for (int i=0 ; i<users.size();i++){
@@ -119,6 +120,14 @@ public class FriendListFragment extends Fragment {
             });
         }
         return view;
+    }
+
+    @Override
+    public void onStop() {
+        if (pageNumber==0){
+            ((EditText) getView().findViewWithTag("newEditText")).setText("");
+        }
+        super.onStop();
     }
 
     private class ViewHolder extends RecyclerView.ViewHolder {

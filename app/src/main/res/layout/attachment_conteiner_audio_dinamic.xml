@@ -12,39 +12,46 @@
 
         <Button
             android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5_sec_prev" />
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@android:drawable/ic_media_rew" />
 
         <Button
             android:id="@+id/button1"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:background="@drawable/playpause" />
+            android:background="@android:drawable/ic_media_play" />
 
         <Button
             android:id="@+id/button2"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:background="@drawable/pause" />
+            android:background="@android:drawable/ic_media_pause" />
 
         <Button
-            android:text="stop"
+            android:id="@+id/button4"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:id="@+id/button4"/>
+            android:text="stop"
+            style="@android:style/Widget.Holo.Button" />
 
         <Button
-            android:text="5_sec_next"
-            android:layout_width="100dp"
+            android:id="@+id/button3"
+            android:layout_width="60dp"
             android:layout_height="60dp"
-            android:id="@+id/button3" />
+            android:background="@android:drawable/ic_media_ff" />
     </LinearLayout>
+
     <TextView
-        android:padding="5dp"
         android:id="@+id/textView"
-        android:text="Audio_name"
-        android:background="@color/primary_dark"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/circle"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="Audio_name" />
 </LinearLayout>

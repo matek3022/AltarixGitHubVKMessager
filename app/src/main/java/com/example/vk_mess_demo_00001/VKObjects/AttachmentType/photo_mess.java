@@ -9,7 +9,9 @@ public class photo_mess {
     private int owner_id;
     private String photo_75;
     private String photo_130;
-    private String photo_128;
+    private String photo_128; //for sticker
+    private String photo_256; //for sticker
+    private String thumb_256; //for gift
     private String photo_604;
     private String photo_807;
     private String photo_1280;
@@ -19,6 +21,14 @@ public class photo_mess {
     private String text;
     private long date;
     private String access_key;
+
+    public String getPhoto_256() {
+        return photo_256;
+    }
+
+    public String getThumb_256() {
+        return thumb_256;
+    }
 
     public int getHeight() {
         return height;
