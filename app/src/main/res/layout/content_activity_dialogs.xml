@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.vk_mess_demo_00001.Activitys.DialogsActivity"
+    tools:context="com.example.vk_mess_demo_00001.activitys.DialogsActivity"
     tools:showIn="@layout/bar_activity_dialogs">
 
     <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
