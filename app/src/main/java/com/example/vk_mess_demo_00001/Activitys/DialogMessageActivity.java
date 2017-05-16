@@ -29,8 +29,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vk_mess_demo_00001.R;
+import com.example.vk_mess_demo_00001.database.DBHelper;
 import com.example.vk_mess_demo_00001.managers.PreferencesManager;
-import com.example.vk_mess_demo_00001.sqlite.DBHelper;
 import com.example.vk_mess_demo_00001.transformation.CircularTransformation;
 import com.example.vk_mess_demo_00001.utils.CryptUtils;
 import com.example.vk_mess_demo_00001.utils.Util;
