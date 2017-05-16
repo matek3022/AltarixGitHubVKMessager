@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.vk_mess_demo_00001.Activitys.SettingActivity">
+    tools:context="com.example.vk_mess_demo_00001.activitys.SettingActivity">
 
     <Switch
         android:id="@+id/switch1"
@@ -18,7 +18,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:switchTextAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:text="Отображать фото профилей"
+        android:text="@string/show_profile_photos"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textColorLink="?attr/colorPrimary" />
 
@@ -33,7 +33,7 @@
         android:layout_below="@+id/switch1"
         android:layout_marginTop="10dp"
         android:switchTextAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:text="Отображать прекрепленные фото"
+        android:text="@string/display_attached_photo"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
     <Switch
@@ -47,9 +47,78 @@
         android:layout_below="@+id/switch3"
         android:layout_marginTop="10dp"
         android:switchTextAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:text="Быть Online "
+        android:text="@string/online"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textColorLink="?attr/colorPrimary" />
+
+    <EditText
+        android:id="@+id/editText"
+        style="@android:style/Widget.Holo.Light.EditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/switch2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/switch2"
+        android:layout_below="@+id/switch2"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:hint="@string/enter_key_this"
+        android:maxLength="32" />
+
+    <Button
+        android:id="@+id/apply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/switch2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/switch2"
+        android:layout_below="@id/editText"
+        android:background="@color/primary"
+        android:text="Запомнить ключ"
+        android:textColor="@android:color/white" />
+
+    <EditText
+        android:id="@+id/editText2"
+        style="@android:style/Widget.Holo.Light.EditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/switch2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/switch2"
+        android:layout_below="@+id/apply"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:hint="Введите сообщение" />
+
+    <Button
+        android:id="@+id/crypt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/switch2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/switch2"
+        android:layout_below="@+id/editText2"
+        android:layout_marginBottom="10dp"
+        android:background="@color/primary"
+        android:text="Зашифровать"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/decrypt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/switch2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/switch2"
+        android:layout_below="@+id/crypt"
+        android:background="@color/primary"
+        android:text="Дешифровать"
+        android:textColor="@android:color/white" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -65,15 +134,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="4"
             android:gravity="center"
-            android:text="Чтобы выйти, нажмити кнопку"
+            android:text="@string/press_the_button_to_exit"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
         <Button
             android:id="@+id/button"
+            style="@android:style/Widget.Holo.Button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
 
-            android:text="Out"
-            style="@android:style/Widget.Holo.Button" />
+            android:layout_height="wrap_content"
+            android:text="@string/out" />
     </LinearLayout>
 </RelativeLayout>

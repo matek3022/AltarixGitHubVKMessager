@@ -1,20 +1,20 @@
-package com.example.vk_mess_demo_00001.Activitys;
+package com.example.vk_mess_demo_00001.activitys;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -25,27 +25,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.example.vk_mess_demo_00001.R;
-import com.example.vk_mess_demo_00001.SQLite.DBHelper;
-import com.example.vk_mess_demo_00001.Transformation.CircularTransformation;
-import com.example.vk_mess_demo_00001.VKObjects.Dialogs;
-import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
-import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
-import com.example.vk_mess_demo_00001.VKObjects.User;
-import com.example.vk_mess_demo_00001.VKObjects.item;
+import com.example.vk_mess_demo_00001.managers.PreferencesManager;
+import com.example.vk_mess_demo_00001.sqlite.DBHelper;
+import com.example.vk_mess_demo_00001.transformation.CircularTransformation;
+import com.example.vk_mess_demo_00001.vkobjects.Dialogs;
+import com.example.vk_mess_demo_00001.vkobjects.Item;
+import com.example.vk_mess_demo_00001.vkobjects.ItemMess;
+import com.example.vk_mess_demo_00001.vkobjects.ServerResponse;
+import com.example.vk_mess_demo_00001.vkobjects.User;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -60,14 +59,16 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
     String stroka = "";
     int off = 0;
     ArrayList<User> names;
-    ArrayList<item> items;
+    ArrayList<Item> items;
     private RecyclerView recyclerView;
     SQLiteDatabase dataBase;
-
+    PreferencesManager preferencesManager;
+    private static final String EXTRA_FORWARD_MESSAGE = "frwd";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         dataBase = DBHelper.getInstance().getWritableDatabase();
+        preferencesManager = PreferencesManager.getInstance();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialogs);
 
@@ -93,9 +94,8 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        final SharedPreferences SPuser = getSharedPreferences("uidgson", Context.MODE_PRIVATE);
-        final String uidgson = SPuser.getString("uidgson_string", "");
-        if (uidgson!="") {
+        final String uidgson = preferencesManager.getUserGson();
+        if (uidgson != "") {
             final User iuser = new Gson().fromJson(uidgson, User.class);
             Picasso.with(DialogsActivity.this)
                     .load(iuser.getPhoto_100())
@@ -110,12 +110,12 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                     startActivity(intent);
                 }
             });
-            if (iuser.getOnline()==1){
+            if (iuser.getOnline() == 1) {
                 ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView21)).setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView21)).setVisibility(View.INVISIBLE);
             }
-            ((TextView) navigationView.getHeaderView(0).findViewById(R.id.textView20)).setText(iuser.getFirst_name()+" "+iuser.getLast_name());
+            ((TextView) navigationView.getHeaderView(0).findViewById(R.id.textView20)).setText(iuser.getFirst_name() + " " + iuser.getLast_name());
             if (iuser.getCity() != (null)) {
                 ((TextView) navigationView.getHeaderView(0).findViewById(R.id.textView21)).setText(iuser.getCity().getTitle());
             } else {
@@ -124,13 +124,11 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
         }
 
         setTitle(getString(R.string.dialogs));
-        final SharedPreferences setting = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (setting.getBoolean("onlineOn", true)) {
-                    final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
-                    String TOKEN = Token.getString("token_string", "");
+                if (preferencesManager.getSettingOnline()) {
+                    String TOKEN = preferencesManager.getToken();
                     Call<ServerResponse> call = service.setOnline(TOKEN);
 
                     call.enqueue(new Callback<ServerResponse>() {
@@ -145,12 +143,8 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                         public void onFailure(Call<ServerResponse> call, Throwable t) {
                             refreshLayout.setRefreshing(false);
                             Toast toast = Toast.makeText(getApplicationContext(),
-                                    "              Internet connection is lost              ", Toast.LENGTH_SHORT);
+                                    getString(R.string.LOST_INTERNET_CONNECTION), Toast.LENGTH_SHORT);
                             toast.setGravity(Gravity.CENTER, 0, 0);
-                            LinearLayout toastContainer = (LinearLayout) toast.getView();
-                            ImageView catImageView = new ImageView(getApplicationContext());
-                            catImageView.setImageResource(R.drawable.catsad);
-                            toastContainer.addView(catImageView, 0);
                             toast.show();
                         }
                     });
@@ -170,7 +164,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
             int dialog = cursor.getColumnIndex(DBHelper.KEY_OBJ);
             int name = cursor1.getColumnIndex(DBHelper.KEY_OBJ);
             for (int i = 0; i < cursor.getCount(); i++) {
-                items.add(gson.fromJson(cursor.getString(dialog), item.class));
+                items.add(gson.fromJson(cursor.getString(dialog), Item.class));
                 cursor.moveToNext();
             }
             for (int i = 0; i < cursor1.getCount(); i++) {
@@ -178,7 +172,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                 Log.i("motya", "" + names.get(i).getFirst_name());
                 cursor1.moveToNext();
             }
-            off = (items.size() / 20 - 1) * 20;
+            off = 0;
             refresh(off);
         } else {
             off = 0;
@@ -190,42 +184,78 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
 
     @Override
     protected void onStop() {
-        dataBase.delete(DBHelper.TABLE_DIALOGS, null, null);
-        dataBase.delete(DBHelper.TABLE_USERS, null, null);
-        ContentValues contentValues = new ContentValues();
-        Gson gson = new Gson();
-
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getMessage().getChat_id() == 0) {
-                contentValues.put(DBHelper.KEY_ID_USER, items.get(i).getMessage().getUser_id());
-            } else {
-                contentValues.put(DBHelper.KEY_ID_USER, items.get(i).getMessage().getChat_id() + 2000000000);
-            }
-            contentValues.put(DBHelper.KEY_OBJ, gson.toJson(items.get(i)));
-            dataBase.insert(DBHelper.TABLE_DIALOGS, null, contentValues);
-        }
-
-        for (int i = 0; i < names.size(); i++) {
-            contentValues.put(DBHelper.KEY_ID_USER, names.get(i).getId());
-            contentValues.put(DBHelper.KEY_OBJ, gson.toJson(names.get(i)));
-            dataBase.insert(DBHelper.TABLE_USERS, null, contentValues);
-        }
+        new UpdateDataBase(items, names).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
         super.onStop();
     }
+
+    static Intent getIntent(Context context, boolean frwdMessDetector, boolean clearStack) {
+        Intent intent = new Intent(context, DialogsActivity.class);
+        if (clearStack) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        intent.putExtra(EXTRA_FORWARD_MESSAGE, frwdMessDetector);
+        return intent;
+    }
+
+    class UpdateDataBase extends AsyncTask<Void, Void, Void> {
+        ArrayList<Item> items;
+        ArrayList<User> names;
+
+        public UpdateDataBase(ArrayList<Item> itemArrayList, ArrayList<User> userArrayList) {
+            items = new ArrayList<>();
+            names = new ArrayList<>();
+            items.addAll(itemArrayList);
+            names.addAll(userArrayList);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            dataBase.beginTransaction();
+            try {
+                dataBase.delete(DBHelper.TABLE_DIALOGS, null, null);
+                dataBase.delete(DBHelper.TABLE_USERS, null, null);
+                ContentValues contentValues = new ContentValues();
+                Gson gson = new Gson();
+
+                for (int i = 0; i < items.size(); i++) {
+                    if (items.get(i).getMessage().getChat_id() == 0) {
+                        contentValues.put(DBHelper.KEY_ID_USER, items.get(i).getMessage().getUser_id());
+                    } else {
+                        contentValues.put(DBHelper.KEY_ID_USER, items.get(i).getMessage().getChat_id() + 2000000000);
+                    }
+                    contentValues.put(DBHelper.KEY_OBJ, gson.toJson(items.get(i)));
+                    dataBase.insert(DBHelper.TABLE_DIALOGS, null, contentValues);
+                }
+
+                for (int i = 0; i < names.size(); i++) {
+                    contentValues.put(DBHelper.KEY_ID_USER, names.get(i).getId());
+                    Log.i("motya", "" + names.get(i).getFirst_name());
+                    contentValues.put(DBHelper.KEY_OBJ, gson.toJson(names.get(i)));
+                    dataBase.insert(DBHelper.TABLE_USERS, null, contentValues);
+                }
+                dataBase.setTransactionSuccessful();
+            } catch (Exception e) {
+
+            } finally {
+                dataBase.endTransaction();
+            }
+            return null;
+        }
+    }
+
 
     public void refresh(final int offset) {
         refreshLayout.setRefreshing(true);
         stroka = "";
-        final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
-        String TOKEN = Token.getString("token_string", "");
-        Call<ServerResponse<ItemMess<ArrayList<item>>>> call = service.getDialogs(TOKEN, 20, offset);
+        String TOKEN = preferencesManager.getToken();
+        Call<ServerResponse<ItemMess<ArrayList<Item>>>> call = service.getDialogs(TOKEN, 20, offset);
 
-        call.enqueue(new Callback<ServerResponse<ItemMess<ArrayList<item>>>>() {
+        call.enqueue(new Callback<ServerResponse<ItemMess<ArrayList<Item>>>>() {
             @Override
-            public void onResponse(Call<ServerResponse<ItemMess<ArrayList<item>>>> call,
-                                   Response<ServerResponse<ItemMess<ArrayList<item>>>> response) {
+            public void onResponse(Call<ServerResponse<ItemMess<ArrayList<Item>>>> call,
+                                   Response<ServerResponse<ItemMess<ArrayList<Item>>>> response) {
                 Log.wtf("motya", response.raw().toString());
-                ArrayList<item> l = response.body().getResponse().getitem();
+                ArrayList<Item> l = response.body().getResponse().getitem();
                 if (l.size() != 0) stroka += "" + l.get(0).getMessage().getUser_id();
                 if (offset == 0) {
                     items.clear();
@@ -236,12 +266,10 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                         stroka += "," + l.get(i).getMessage().getUser_id();
                     }
                 }
-                final SharedPreferences Uid = getSharedPreferences("uid",Context.MODE_PRIVATE);
-                final int UID = Uid.getInt("uid_int",0);
+                final int UID = preferencesManager.getUserID();
 
-                stroka+=","+UID;
-                final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
-                String TOKEN = Token.getString("token_string", "");
+                stroka += "," + UID;
+                String TOKEN = preferencesManager.getToken();
                 Call<ServerResponse<ArrayList<User>>> call1 = service.getUser(TOKEN,
                         stroka,
                         "photo_100, online, photo_400_orig,photo_max_orig,city,country,education, universities, schools, bdate, contacts");
@@ -254,11 +282,8 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                             names.clear();
                         }
                         for (int i = 0; i < l1.size(); i++) {
-                            if (l1.get(i).getId()==UID){
-                                final SharedPreferences Uid_gson = getSharedPreferences("uidgson", Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = Uid_gson.edit();
-                                editor.putString("uidgson_string",new Gson().toJson(l1.get(i)));
-                                editor.apply();
+                            if (l1.get(i).getId() == UID) {
+                                preferencesManager.setUserGson(new Gson().toJson(l1.get(i)));
                             }
                             names.add(l1.get(i));
                         }
@@ -273,33 +298,29 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                         Log.wtf("motya", t.getMessage());
                         refreshLayout.setRefreshing(false);
                         Toast toast = Toast.makeText(getApplicationContext(),
-                                "              Internet connection is lost              ", Toast.LENGTH_SHORT);
+                                getString(R.string.LOST_INTERNET_CONNECTION), Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.CENTER, 0, 0);
-                        LinearLayout toastContainer = (LinearLayout) toast.getView();
-                        ImageView catImageView = new ImageView(getApplicationContext());
-                        catImageView.setImageResource(R.drawable.catsad);
-                        toastContainer.addView(catImageView, 0);
                         toast.show();
                     }
                 });
             }
 
             @Override
-            public void onFailure(Call<ServerResponse<ItemMess<ArrayList<item>>>> call, Throwable t) {
+            public void onFailure(Call<ServerResponse<ItemMess<ArrayList<Item>>>> call, Throwable t) {
                 Log.wtf("motya", t.getMessage());
                 refreshLayout.setRefreshing(false);
                 Toast toast = Toast.makeText(getApplicationContext(),
-                        "              Internet connection is lost              ", Toast.LENGTH_SHORT);
+                        getString(R.string.LOST_INTERNET_CONNECTION), Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
-                LinearLayout toastContainer = (LinearLayout) toast.getView();
-                ImageView catImageView = new ImageView(getApplicationContext());
-                catImageView.setImageResource(R.drawable.catsad);
-                toastContainer.addView(catImageView, 0);
                 toast.show();
             }
         });
     }
 
+//    @Override
+//    protected void attachBaseContext(Context newBase) {
+//        super.attachBaseContext(Emojix.wrap(newBase));
+//    }
 
     public static String convertMonth(int num) {
         String[] months = {"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
@@ -337,24 +358,18 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        // Handle navigation view Item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_dialogs) {
-            Intent intent = new Intent();
-            intent.setClass(DialogsActivity.this, DialogsActivity.class);
-            startActivity(intent);
+            startActivity(DialogsActivity.getIntent(DialogsActivity.this, false, true));
             DialogsActivity.this.finish();
 
         } else if (id == R.id.nav_friends) {
-            Intent intent = new Intent();
-            intent.setClass(DialogsActivity.this, FriendsActivity.class);
-            startActivity(intent);
+            startActivity(FriendsActivity.getIntent(DialogsActivity.this, 0, true));
             DialogsActivity.this.finish();
         } else if (id == R.id.nav_settings) {
-            Intent intent = new Intent();
-            intent.setClass(DialogsActivity.this, SettingActivity.class);
-            startActivity(intent);
+            startActivity(SettingActivity.getIntent(DialogsActivity.this));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -384,7 +399,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
     }
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
-        private final SharedPreferences setting = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
+
         SimpleDateFormat year = new SimpleDateFormat("yyyy");
         SimpleDateFormat month = new SimpleDateFormat("MM");
         SimpleDateFormat day = new SimpleDateFormat("dd");
@@ -399,7 +414,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            final item item = items.get(position);
+            final Item item = items.get(position);
             final Dialogs dialog = item.getMessage();
             User user = new User();
             for (int i = 0; i < names.size(); i++) {
@@ -412,22 +427,17 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(DialogsActivity.this, DialogMessageActivity.class);
-                    intent.putExtra("userID", dialog.getUser_id());
-                    intent.putExtra("Title", dialog.getTitle());
-                    intent.putExtra("userName", userFinal.getFirst_name() + " " + userFinal.getLast_name());
-                    intent.putExtra("ChatID", dialog.getChat_id());
-                    startActivity(intent);
+                    if (getIntent().getBooleanExtra(EXTRA_FORWARD_MESSAGE, false)) {
+                        DialogsActivity.this.finish();
+                    }
+                    startActivity(DialogMessageActivity.getIntent(DialogsActivity.this, dialog.getUser_id(), dialog.getChat_id(), dialog.getTitle(), userFinal.getFirst_name() + " " + userFinal.getLast_name(), getIntent().getBooleanExtra("frwd", false)));
                 }
             });
             holder.photo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (dialog.getChat_id() == 0) {
-                        Intent intent = new Intent(DialogsActivity.this, UserActivity.class);
-                        intent.putExtra("userID", dialog.getUser_id());
-                        intent.putExtra("userJson", new Gson().toJson(userFinal));
-                        startActivity(intent);
+                        startActivity(UserActivity.getIntent(DialogsActivity.this, dialog.getUser_id(), new Gson().toJson(userFinal)));
                     }
                 }
             });
@@ -439,14 +449,14 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                     } else {
                         holder.online.setVisibility(View.INVISIBLE);
                     }
-                    if (setting.getBoolean("photouserOn", true)) {
+                    if (preferencesManager.getSettingPhotoUserOn()) {
                         Picasso.with(DialogsActivity.this)
                                 .load(user.getPhoto_100())
                                 .transform(new CircularTransformation())
                                 .into(holder.photo);
                     } else {
                         Picasso.with(DialogsActivity.this)
-                                .load("https://vk.com/images/soviet_100.png")
+                                .load(R.drawable.soviet100)
                                 .transform(new CircularTransformation())
                                 .into(holder.photo);
                     }
@@ -457,7 +467,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                         holder.online.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    if (setting.getBoolean("photouserOn", true))
+                    if (preferencesManager.getSettingPhotoUserOn())
                         if (dialog.getPhoto_100() != null) {
                             Picasso.with(DialogsActivity.this)
                                     .load(dialog.getPhoto_100())
@@ -465,7 +475,7 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                                     .into(holder.photo);
                         } else {
                             Picasso.with(DialogsActivity.this)
-                                    .load("https://vk.com/images/soviet_100.png")
+                                    .load(R.drawable.soviet100)
                                     .transform(new CircularTransformation())
                                     .into(holder.photo);
                         }
@@ -474,40 +484,44 @@ public class DialogsActivity extends AppCompatActivity implements NavigationView
                 }
             } else {
                 Picasso.with(DialogsActivity.this)
-                        .load("https://vk.com/images/soviet_100.png")
+                        .load(R.drawable.soviet100)
                         .transform(new CircularTransformation())
                         .into(holder.photo);
-                holder.name.setText("Сообщество");
+                holder.name.setText(getString(R.string.COMMUNITY));
                 holder.online.setVisibility(View.INVISIBLE);
             }
             if (dialog.getOut() == 0) {
                 if (dialog.getAttachments().size() > 0) {
-                    holder.body.setText("'" + dialog.getAttachments().get(0).getType() + "'");
+                    holder.body.setText(dialog.getAttachments().get(0).getType());
                 } else {
                     if (!dialog.getFwd_messages().isEmpty()) {
-                        holder.body.setText("'Пересланые сообщения'");
+                        holder.body.setText(getString(R.string.FORWARD_MESSAGES));
                     } else {
                         holder.body.setText(dialog.getBody());
                     }
                 }
             } else {
                 if (dialog.getAttachments().size() > 0) {
-                    holder.body.setText("Вы: " + "'" + dialog.getAttachments().get(0).getType() + "'");
+                    holder.body.setText(getString(R.string.YOU) + dialog.getAttachments().get(0).getType());
                 } else {
                     if (!dialog.getFwd_messages().isEmpty()) {
-                        holder.body.setText("Вы: " + "'Пересланые сообщения'");
+                        holder.body.setText(getString(R.string.YOU) + getString(R.string.FORWARD_MESSAGES));
                     } else {
-                        holder.body.setText("Вы: " + dialog.getBody());
+                        holder.body.setText(getString(R.string.YOU) + dialog.getBody());
                     }
                 }
             }
+            if (dialog.getAction() != null) {
+                if (dialog.getAction().equals("chat_kick_user"))
+                    holder.body.setText(getString(R.string.left_chat));
+            }
 
-            year.setTimeZone(TimeZone.getTimeZone("GMT+4"));
-            month.setTimeZone(TimeZone.getTimeZone("GMT+4"));
-            day.setTimeZone(TimeZone.getTimeZone("GMT+4"));
-            hour.setTimeZone(TimeZone.getTimeZone("GMT+4"));
-            min.setTimeZone(TimeZone.getTimeZone("GMT+4"));
-            time.setTimeZone(TimeZone.getTimeZone("GMT+4"));
+            year.setTimeZone(TimeZone.getDefault());
+            month.setTimeZone(TimeZone.getDefault());
+            day.setTimeZone(TimeZone.getDefault());
+            hour.setTimeZone(TimeZone.getDefault());
+            min.setTimeZone(TimeZone.getDefault());
+            time.setTimeZone(TimeZone.getDefault());
             Date dateCurr = new Date(System.currentTimeMillis());
             Date dateTs = new Date(dialog.getDate() * 1000L);
             String time_day = day.format(dateTs);

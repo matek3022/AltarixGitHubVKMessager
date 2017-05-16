@@ -1,12 +1,10 @@
-package com.example.vk_mess_demo_00001.VKObjects;
-
-import com.example.vk_mess_demo_00001.VKObjects.Dialogs;
+package com.example.vk_mess_demo_00001.vkobjects;
 
 /**
  * Created by Каракатица on 29.10.2016.
  */
 
-public class item {
+public class Item {
     private int unread;
     private Dialogs message;
 
@@ -17,7 +15,8 @@ public class item {
     public int getUnread() {
         return unread;
     }
-    public item (){
+
+    public Item() {
         message = new Dialogs();
     }
 }

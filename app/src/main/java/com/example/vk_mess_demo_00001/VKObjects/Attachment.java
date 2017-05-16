@@ -1,48 +1,50 @@
-package com.example.vk_mess_demo_00001.VKObjects;
+package com.example.vk_mess_demo_00001.vkobjects;
 
-import com.example.vk_mess_demo_00001.VKObjects.AttachmentType.audio_mess;
-import com.example.vk_mess_demo_00001.VKObjects.AttachmentType.doc_mess;
-import com.example.vk_mess_demo_00001.VKObjects.AttachmentType.photo_mess;
-import com.example.vk_mess_demo_00001.VKObjects.AttachmentType.video_mess;
+import com.example.vk_mess_demo_00001.utils.Link;
+import com.example.vk_mess_demo_00001.vkobjects.attachmenttype.AudioMess;
+import com.example.vk_mess_demo_00001.vkobjects.attachmenttype.DocMess;
+import com.example.vk_mess_demo_00001.vkobjects.attachmenttype.PhotoMess;
+import com.example.vk_mess_demo_00001.vkobjects.attachmenttype.VideoMess;
 
 public class Attachment {
 
     private String type;
-    private photo_mess photo;
-    private photo_mess sticker;
-    private photo_mess gift;
-    private video_mess video;
-    private com.example.vk_mess_demo_00001.Utils.link link;
-    private doc_mess doc;
-    private audio_mess audio;
+    private PhotoMess photo;
+    private PhotoMess sticker;
+    private PhotoMess gift;
+    private VideoMess video;
+    private Link link;
+    private DocMess doc;
+    private AudioMess audio;
     public String getType() {
         return type;
     }
-    public photo_mess getPhoto() {
+
+    public PhotoMess getPhoto() {
         return photo;
     }
 
-    public photo_mess getGift() {
+    public PhotoMess getGift() {
         return gift;
     }
 
-    public photo_mess getSticker() {
+    public PhotoMess getSticker() {
         return sticker;
     }
 
-    public video_mess getVideo() {
+    public VideoMess getVideo() {
         return video;
     }
 
-    public com.example.vk_mess_demo_00001.Utils.link getLink() {
+    public Link getLink() {
         return link;
     }
 
-    public doc_mess getDoc() {
+    public DocMess getDoc() {
         return doc;
     }
 
-    public audio_mess getAudio() {
+    public AudioMess getAudio() {
         return audio;
     }
 }

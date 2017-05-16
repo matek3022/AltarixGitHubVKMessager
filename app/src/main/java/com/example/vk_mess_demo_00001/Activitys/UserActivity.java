@@ -1,10 +1,13 @@
-package com.example.vk_mess_demo_00001.Activitys;
+package com.example.vk_mess_demo_00001.activitys;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -16,11 +19,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vk_mess_demo_00001.R;
-import com.example.vk_mess_demo_00001.VKObjects.AttachmentType.photo_mess;
-import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
-import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
-import com.example.vk_mess_demo_00001.VKObjects.User;
-import com.example.vk_mess_demo_00001.Utils.VKService;
+import com.example.vk_mess_demo_00001.managers.PreferencesManager;
+import com.example.vk_mess_demo_00001.vkobjects.ItemMess;
+import com.example.vk_mess_demo_00001.vkobjects.ServerResponse;
+import com.example.vk_mess_demo_00001.vkobjects.User;
+import com.example.vk_mess_demo_00001.vkobjects.attachmenttype.PhotoMess;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.frescoimageviewer.ImageViewer;
@@ -30,29 +33,40 @@ import java.util.ArrayList;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.vk_mess_demo_00001.App.service;
 
 public class UserActivity extends AppCompatActivity {
-//    final public static Retrofit retrofit = new Retrofit.Builder()
-//            .baseUrl("https://api.vk.com/method/")
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build();
-//
-//    final public static VKService service = retrofit.create(VKService.class);
-
+    PreferencesManager preferencesManager;
+    private static final String EXTRA_USER_ID = "userID";
+    private static final String EXTRA_USER_JSON = "userJson";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
+
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.MyToolbar);
+        toolbar.setNavigationIcon(R.mipmap.back_button);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        final int user_id = getIntent().getIntExtra("userID", 0);
-        final User user = new Gson().fromJson(getIntent().getStringExtra("userJson"), User.class);
-        setTitle(user.getFirst_name() + " " + user.getLast_name());
-        final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapse_toolbar);
+        Context context = this;
+        collapsingToolbarLayout.setContentScrimColor(ContextCompat.getColor(context, R.color.primary));
+
+        preferencesManager = PreferencesManager.getInstance();
+        final int user_id = getIntent().getIntExtra(EXTRA_USER_ID, 0);
+        final User user = new Gson().fromJson(getIntent().getStringExtra(EXTRA_USER_JSON), User.class);
+        collapsingToolbarLayout.setExpandedTitleColor(Color.WHITE);
+        collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
+        collapsingToolbarLayout.setTitle(user.getFirst_name() + " " + user.getLast_name());
+
         final LinearLayout lineBottom = (LinearLayout) findViewById(R.id.lineBottom);
+
+//        LayoutInflater inflater = getLayoutInflater();
+//        View cont1 = inflater.inflate(R.layout.text_container, null);
+
         final TextView tv = new TextView(UserActivity.this);
         final TextView tv1 = new TextView(UserActivity.this);
         final TextView tv2 = new TextView(UserActivity.this);
@@ -63,11 +77,12 @@ public class UserActivity extends AppCompatActivity {
         final TextView tv7 = new TextView(UserActivity.this);
         final TextView tv8 = new TextView(UserActivity.this);
         final TextView tv9 = new TextView(UserActivity.this);
+
         lineBottom.addView(tv);
         if (user.getOnline() == 1) {
-            tv.setText("'Online'");
+            tv.setText(R.string.ONLINE);
         } else {
-            tv.setText("'Offline'");
+            tv.setText(R.string.OFFLINE);
         }
         if (user.getCity() != null) {
             tv1.setText(user.getCity().getTitle());
@@ -78,11 +93,11 @@ public class UserActivity extends AppCompatActivity {
             lineBottom.addView(tv2);
         }
         if ((user.getBdate() != "") && (user.getBdate() != null)) {
-            tv3.setText("Дата рождения: " + user.getBdate());
+            tv3.setText(getString(R.string.BIRTHSDAY) + user.getBdate());
             lineBottom.addView(tv3);
         }
         if ((user.getUniversity_name() != "") && (user.getUniversity_name() != null)) {
-            tv4.setText("Университет: " + user.getUniversity_name());
+            tv4.setText(getString(R.string.UNIVERSITY) + user.getUniversity_name());
             lineBottom.addView(tv4);
         }
         if ((user.getFaculty_name() != "") && (user.getFaculty_name() != null)) {
@@ -98,28 +113,28 @@ public class UserActivity extends AppCompatActivity {
             lineBottom.addView(tv7);
         }
         if ((user.getMobile_phone() != "") && (user.getMobile_phone() != null)) {
-            tv8.setText("Мобильный: " + user.getMobile_phone());
+            tv8.setText(getString(R.string.MOBILE_PHONE) + user.getMobile_phone());
             lineBottom.addView(tv8);
         }
         if ((user.getHome_phone() != "") && (user.getHome_phone() != null)) {
-            tv9.setText("Домашний: " + user.getHome_phone());
+            tv9.setText(getString(R.string.HOME_PHONE) + user.getHome_phone());
             lineBottom.addView(tv9);
         }
-        String photoUserUrl="";
+        String photoUserUrl = "";
         if (user.getPhoto_max_orig() != null) {
-            photoUserUrl=user.getPhoto_max_orig();
+            photoUserUrl = user.getPhoto_max_orig();
         } else {
             if (user.getPhoto_400_orig() != null) {
-                photoUserUrl=user.getPhoto_400_orig();
+                photoUserUrl = user.getPhoto_400_orig();
             } else {
                 if (user.getPhoto_200() != null) {
-                    photoUserUrl=user.getPhoto_200();
+                    photoUserUrl = user.getPhoto_200();
                 } else {
                     if (user.getPhoto_100() != null) {
-                        photoUserUrl=user.getPhoto_100();
+                        photoUserUrl = user.getPhoto_100();
                     } else {
                         if (user.getPhoto_50() != null) {
-                            photoUserUrl=user.getPhoto_50();
+                            photoUserUrl = user.getPhoto_50();
                         }
                     }
                 }
@@ -132,12 +147,12 @@ public class UserActivity extends AppCompatActivity {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String TOKEN = Token.getString("token_string", "");
-                Call<ServerResponse<ItemMess<ArrayList<photo_mess>>>> call1 = service.getPhotos(TOKEN, user_id);
-                call1.enqueue(new Callback<ServerResponse<ItemMess<ArrayList<photo_mess>>>>() {
+                String TOKEN = preferencesManager.getToken();
+                Call<ServerResponse<ItemMess<ArrayList<PhotoMess>>>> call1 = service.getPhotos(TOKEN, user_id);
+                call1.enqueue(new Callback<ServerResponse<ItemMess<ArrayList<PhotoMess>>>>() {
                     @Override
-                    public void onResponse(Call<ServerResponse<ItemMess<ArrayList<photo_mess>>>> call1, Response<ServerResponse<ItemMess<ArrayList<photo_mess>>>> response) {
-                        ArrayList<photo_mess> l1 = response.body().getResponse().getitem();
+                    public void onResponse(Call<ServerResponse<ItemMess<ArrayList<PhotoMess>>>> call1, Response<ServerResponse<ItemMess<ArrayList<PhotoMess>>>> response) {
+                        ArrayList<PhotoMess> l1 = response.body().getResponse().getitem();
                         final ArrayList<String> photo = new ArrayList<>();
                         for (int i = 0; i < l1.size(); i++) {
                             if (l1.get(i).getPhoto_1280() != null) {
@@ -165,15 +180,11 @@ public class UserActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(Call<ServerResponse<ItemMess<ArrayList<photo_mess>>>> call1, Throwable t) {
+                    public void onFailure(Call<ServerResponse<ItemMess<ArrayList<PhotoMess>>>> call1, Throwable t) {
                         Log.wtf("motya", t.getMessage());
                         Toast toast = Toast.makeText(getApplicationContext(),
-                                "              Internet connection is lost              ", Toast.LENGTH_SHORT);
+                                getString(R.string.LOST_INTERNET_CONNECTION), Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.CENTER, 0, 0);
-                        LinearLayout toastContainer = (LinearLayout) toast.getView();
-                        ImageView catImageView = new ImageView(getApplicationContext());
-                        catImageView.setImageResource(R.drawable.catsad);
-                        toastContainer.addView(catImageView, 0);
                         toast.show();
                     }
                 });
@@ -184,20 +195,22 @@ public class UserActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(UserActivity.this, DialogMessageActivity.class);
-                intent.putExtra("userID", user_id);
-                intent.putExtra("userName", user.getFirst_name() + " " + user.getLast_name());
-                startActivity(intent);
+                startActivity(DialogMessageActivity.getIntent(UserActivity.this, user_id, 0, "", user.getFirst_name() + " " + user.getLast_name(), false));
             }
         });
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(UserActivity.this, FriendsActivity.class);
-                intent.putExtra("userID", user_id);
-                startActivity(intent);
+                startActivity(FriendsActivity.getIntent(UserActivity.this, user_id, false));
             }
         });
+    }
+
+    public static Intent getIntent(Context context, int userId, String userJson) {
+        Intent intent = new Intent(context, UserActivity.class);
+        intent.putExtra(EXTRA_USER_ID, userId);
+        intent.putExtra(EXTRA_USER_JSON, userJson);
+        return intent;
     }
 
     @Override

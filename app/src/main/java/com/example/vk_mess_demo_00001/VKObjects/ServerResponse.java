@@ -1,4 +1,4 @@
-package com.example.vk_mess_demo_00001.VKObjects;
+package com.example.vk_mess_demo_00001.vkobjects;
 
 /**
  * Created by Каракатица on 07.10.2016.

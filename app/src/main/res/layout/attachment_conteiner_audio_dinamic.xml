@@ -30,10 +30,10 @@
 
         <Button
             android:id="@+id/button4"
+            style="@android:style/Widget.Holo.Button"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:text="stop"
-            style="@android:style/Widget.Holo.Button" />
+            android:text="@string/stop" />
 
         <Button
             android:id="@+id/button3"

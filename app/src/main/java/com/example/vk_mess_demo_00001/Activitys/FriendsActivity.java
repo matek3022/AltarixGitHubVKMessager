@@ -1,15 +1,13 @@
-package com.example.vk_mess_demo_00001.Activitys;
+package com.example.vk_mess_demo_00001.activitys;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -27,19 +25,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.vk_mess_demo_00001.Fragments.FriendListFragment;
 import com.example.vk_mess_demo_00001.R;
-import com.example.vk_mess_demo_00001.SQLite.DBHelper;
-import com.example.vk_mess_demo_00001.Transformation.CircularTransformation;
-import com.example.vk_mess_demo_00001.Utils.VKService;
-import com.example.vk_mess_demo_00001.VKObjects.ItemMess;
-import com.example.vk_mess_demo_00001.VKObjects.ServerResponse;
-import com.example.vk_mess_demo_00001.VKObjects.User;
-import com.example.vk_mess_demo_00001.VKObjects.item;
+import com.example.vk_mess_demo_00001.fragments.FriendListFragment;
+import com.example.vk_mess_demo_00001.managers.PreferencesManager;
+import com.example.vk_mess_demo_00001.sqlite.DBHelper;
+import com.example.vk_mess_demo_00001.transformation.CircularTransformation;
+import com.example.vk_mess_demo_00001.vkobjects.ItemMess;
+import com.example.vk_mess_demo_00001.vkobjects.ServerResponse;
+import com.example.vk_mess_demo_00001.vkobjects.User;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -48,8 +44,6 @@ import java.util.ArrayList;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.vk_mess_demo_00001.App.service;
 
@@ -59,34 +53,39 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
     PagerAdapter pagerAdapter;
     SwipeRefreshLayout refreshLayout;
     static final int PAGE_COUNT = 2;
-    //    Retrofit retrofit;
     public static int page = 1; //на какой странице мы сейчас
     public static ArrayList<User> info;
-    public static String ALL_FRIENDS = "All friends";
-    public static String ONLINE_FRIENDS = "Online";
+    public static String ALL_FRIENDS = "";
+    public static String ONLINE_FRIENDS = "";
     SQLiteDatabase dataBase;
+    PreferencesManager preferencesManager;
     int user_id;
-
+    private static final String EXTRA_USER_ID = "userID";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         dataBase = DBHelper.getInstance().getWritableDatabase();
-        user_id = getIntent().getIntExtra("userID", 0);
+        user_id = getIntent().getIntExtra(EXTRA_USER_ID, 0);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
-        setTitle("Friends");
-
+        setTitle(getString(R.string.FRIENDS));
+        preferencesManager = PreferencesManager.getInstance();
+        info = new ArrayList<>();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        pager = (ViewPager) findViewById(R.id.pager);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        setSupportActionBar(toolbar);
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
         navigationView.setNavigationItemSelectedListener(this);
-        final SharedPreferences SPuser = getSharedPreferences("uidgson", Context.MODE_PRIVATE);
-        final String uidgson = SPuser.getString("uidgson_string", "");
+        final String uidgson = preferencesManager.getUserGson();
         if (uidgson!="") {
             final User iuser = new Gson().fromJson(uidgson, User.class);
             Picasso.with(FriendsActivity.this)
@@ -96,10 +95,8 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
             ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView20)).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(FriendsActivity.this, UserActivity.class);
-                    intent.putExtra("userID", iuser.getId());
-                    intent.putExtra("userJson", uidgson);
-                    startActivity(intent);
+
+                    startActivity(UserActivity.getIntent(FriendsActivity.this, iuser.getId(), uidgson));
                 }
             });
             if (iuser.getOnline()==1){
@@ -114,8 +111,7 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
                 ((TextView) navigationView.getHeaderView(0).findViewById(R.id.textView21)).setText("");
             }
         }
-        pager = (ViewPager) findViewById(R.id.pager);
-        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -125,7 +121,7 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
         if (user_id==0) {
             Cursor cursor = dataBase.query(DBHelper.TABLE_FRIENDS, null, null, null, null, null, null);
             if (cursor.moveToFirst()) {
-                info = new ArrayList<>();
+                info.clear();
                 Gson gson = new Gson();
                 int user = cursor.getColumnIndex(DBHelper.KEY_OBJ);
                 for (int i = 0; i < cursor.getCount(); i++) {
@@ -134,6 +130,8 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
                 }
                 pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
                 pager.setAdapter(pagerAdapter);
+
+                setCountFriends();
 
                 refresh(user_id);
             } else {
@@ -148,43 +146,94 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
     @Override
     protected void onStop() {
         if (user_id==0) {
-            dataBase.delete(DBHelper.TABLE_FRIENDS, null, null);
-            ContentValues contentValues = new ContentValues();
-            Gson gson = new Gson();
-
-            for (int i = 0; i < info.size(); i++) {
-                contentValues.put(DBHelper.KEY_ID_USER, info.get(i).getId());
-                contentValues.put(DBHelper.KEY_OBJ, gson.toJson(info.get(i)));
-                dataBase.insert(DBHelper.TABLE_FRIENDS, null, contentValues);
-            }
+            new UpdateDataBase(user_id, info).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
         }
         super.onStop();
     }
 
+    static Intent getIntent(Context context, int userId, boolean clearStack) {
+        Intent intent = new Intent(context, FriendsActivity.class);
+        if (clearStack) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        intent.putExtra(EXTRA_USER_ID, userId);
+        return intent;
+    }
+
+    class UpdateDataBase extends AsyncTask<Void, Void, Void> {
+        int user_id;
+        ArrayList<User> userUpdate;
+
+        public UpdateDataBase(int userId, ArrayList<User> userArrayList) {
+            userUpdate = new ArrayList<>();
+            userUpdate.addAll(userArrayList);
+            user_id = userId;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (user_id == 0) {
+                dataBase.beginTransaction();
+                try {
+                    dataBase.delete(DBHelper.TABLE_FRIENDS, null, null);
+                    ContentValues contentValues = new ContentValues();
+                    Gson gson = new Gson();
+
+                    for (int i = 0; i < userUpdate.size(); i++) {
+                        contentValues.put(DBHelper.KEY_ID_USER, userUpdate.get(i).getId());
+                        contentValues.put(DBHelper.KEY_OBJ, gson.toJson(userUpdate.get(i)));
+                        dataBase.insert(DBHelper.TABLE_FRIENDS, null, contentValues);
+                    }
+                    dataBase.setTransactionSuccessful();
+                } catch (Exception e) {
+
+                } finally {
+                    dataBase.endTransaction();
+                }
+            }
+            return null;
+        }
+    }
+
+    public void setCountFriends() {
+        int onlineCount = 0;
+        for (int i = 0; i < info.size(); i++) {
+            if (info.get(i).getOnline() == 1) {
+                onlineCount++;
+            }
+        }
+        setAllFriendsCount(info.size());
+        setOnlineFriendsCount(onlineCount);
+    }
+
     public void setAllFriendsCount(int cnt) {
-        ALL_FRIENDS = "All friends" + " (" + cnt + ")";
+        ALL_FRIENDS = getString(R.string.ALL_FRIENDS) + " (" + cnt + ")";
     }
 
     public void setOnlineFriendsCount(int cnt) {
-        ONLINE_FRIENDS = "Online" + " (" + cnt + ")";
+        ONLINE_FRIENDS = getString(R.string.ONLINE) + " (" + cnt + ")";
     }
 
     private void refresh(int user_id) {
         refreshLayout.setRefreshing(true);
-        final SharedPreferences Token = getSharedPreferences("token", Context.MODE_PRIVATE);
-        String TOKEN = Token.getString("token_string", "");
-        Call<ServerResponse<ItemMess<ArrayList<User>>>> call = service.getFriends(TOKEN, user_id, "online, photo_200, city");
+        String TOKEN = preferencesManager.getToken();
+        Call<ServerResponse<ItemMess<ArrayList<User>>>> call = service.getFriends(TOKEN, user_id, "photo_100,photo_200,photo_400_orig,photo_max_orig, online,city,country,education, universities, schools,bdate,contacts");
 
         call.enqueue(new Callback<ServerResponse<ItemMess<ArrayList<User>>>>() {
             @Override
             public void onResponse(Call<ServerResponse<ItemMess<ArrayList<User>>>> call, Response<ServerResponse<ItemMess<ArrayList<User>>>> response) {
                 Log.wtf("motya", response.raw().toString());
                 ArrayList<User> l = response.body().getResponse().getitem();
-                info = l;
+                info.clear();
+                info.addAll(l);
+                Log.wtf("getCount", "" + info.size());
                 if (pager != null) {
                     page = pager.getCurrentItem();
                 }
                 pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
+
+                setCountFriends();
+
                 pager.setAdapter(pagerAdapter);
                 pager.setCurrentItem(page);
                 refreshLayout.setRefreshing(false);
@@ -196,12 +245,8 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
                 Log.wtf("motya", t.getMessage());
                 refreshLayout.setRefreshing(false);
                 Toast toast = Toast.makeText(getApplicationContext(),
-                        "              Internet connection is lost              ", Toast.LENGTH_SHORT);
+                        getString(R.string.LOST_INTERNET_CONNECTION), Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
-                LinearLayout toastContainer = (LinearLayout) toast.getView();
-                ImageView catImageView = new ImageView(getApplicationContext());
-                catImageView.setImageResource(R.drawable.catsad);
-                toastContainer.addView(catImageView, 0);
                 toast.show();
             }
         });
@@ -215,7 +260,6 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
         @Override
         public Fragment getItem(int position) {
-            //Log.i("motya", new Gson().toJson(info));
             return FriendListFragment.newInstance(position, new Gson().toJson(info));
         }
 
@@ -265,24 +309,18 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        // Handle navigation view Item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_dialogs) {
-            Intent intent = new Intent();
-            intent.setClass(FriendsActivity.this, DialogsActivity.class);
-            startActivity(intent);
+            startActivity(DialogsActivity.getIntent(FriendsActivity.this, false, true));
             FriendsActivity.this.finish();
 
         } else if (id == R.id.nav_friends) {
-            Intent intent = new Intent();
-            intent.setClass(FriendsActivity.this, FriendsActivity.class);
-            startActivity(intent);
+            startActivity(FriendsActivity.getIntent(FriendsActivity.this, 0, true));
             FriendsActivity.this.finish();
         } else if (id == R.id.nav_settings) {
-            Intent intent = new Intent();
-            intent.setClass(FriendsActivity.this, SettingActivity.class);
-            startActivity(intent);
+            startActivity(SettingActivity.getIntent(FriendsActivity.this));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
