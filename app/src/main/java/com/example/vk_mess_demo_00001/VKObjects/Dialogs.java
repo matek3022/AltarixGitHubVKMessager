@@ -1,4 +1,4 @@
-package com.example.vk_mess_demo_00001.VKObjects;
+package com.example.vk_mess_demo_00001.vkobjects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -61,12 +61,17 @@ public class Dialogs implements Parcelable {
     private int read_state;
     private ArrayList<Dialogs> fwd_messages;
     private String title;
+    private String action;
     private String body;
     private String photo_50;
     private String photo_100;
     private int[] chat_active;
     private int chat_id;
     private ArrayList<Attachment> attachments;
+
+    public String getAction() {
+        return action;
+    }
 
     public int getFrom_id() {
         return from_id;

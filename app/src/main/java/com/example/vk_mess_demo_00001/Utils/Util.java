@@ -1,4 +1,4 @@
-package com.example.vk_mess_demo_00001.Utils;
+package com.example.vk_mess_demo_00001.utils;
 
 import android.content.Context;
 import android.content.Intent;
